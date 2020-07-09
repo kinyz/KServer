@@ -1,0 +1,15 @@
+Env: false # 是否开启环境变量
+Host: 140.143.247.121
+Port: 30057
+PassWord: .R1chUQzA5mq>T)U
+MaxIdle: 8
+MaxActive: 0
+IdleTimeout: 100
+# slave配置
+SlaveEnable: true
+SlaveHost: 140.143.247.121
+SlavePort: 30058
+SlavePassWord: .R1chUQzA5mq>T)U
+SlaveMaxIdle: 8
+SlaveMaxActive: 0
+SlaveIdleTimeout: 100

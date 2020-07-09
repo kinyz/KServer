@@ -1,0 +1,18 @@
+env: false # 是否开启环境变量
+master:
+  host: 140.143.247.121
+  port: 30057
+  password: .R1chUQzA5mq>T)U
+  maxIdle: 8
+  maxActive: 0
+  idleTimeout: 100
+
+# slave配置
+slave:
+  enable: false
+  host: 140.143.247.121
+  port: 30058
+  password: .R1chUQzA5mq>T)U
+  maxIdle: 8
+  maxActive: 0
+  idleTimeout: 100

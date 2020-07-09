@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package proto;
+
+message Msg{
+  uint32 DataLen = 1;
+  uint32 Id = 2;
+  bytes  Data = 3;
+
+}

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package pd;
+message User{
+  Account Account= 1;
+}
+message Account{
+  string UUID = 1;
+  string Account = 2;
+  string PassWord =3;
+  string Token = 4;
+  uint32 Online = 5;
+  uint32 State = 6;
+}

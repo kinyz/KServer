@@ -1,0 +1,7 @@
+Env: false # 是否开启环境变量
+Name: kinyz # 数据库名字
+Host: 140.143.247.121 # 数据库ip
+Port: 30021 # 数据库端口
+User: kinyz # 数据库用户名
+PassWord: OQOQC+}R-Z7.OriI # 数据库密码
+MaxReConnectNum: 20 #最大重连次数
