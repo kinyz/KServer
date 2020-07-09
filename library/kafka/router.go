@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"KServer/library/iface/kafka"
+	"KServer/library/iface/ikafka"
 	"KServer/library/utils"
 	"context"
 	"fmt"
@@ -12,20 +12,20 @@ import (
 
 type Router struct {
 	Topic        []string
-	IConsumer    kafka.IConsumer
-	BaseResponse map[string]kafka.BaseResponse
+	IConsumer    ikafka.IConsumer
+	BaseResponse map[string]ikafka.BaseResponse
 	Ready        chan bool
 }
 
-func NewIRouter() kafka.IRouter {
+func NewIRouter() ikafka.IRouter {
 
 	return &Router{
-		BaseResponse: make(map[string]kafka.BaseResponse),
+		BaseResponse: make(map[string]ikafka.BaseResponse),
 		IConsumer:    NewIConsumer(),
 	}
 }
 
-func (r *Router) AddRouter(topic string, response kafka.BaseResponse) {
+func (r *Router) AddRouter(topic string, response ikafka.BaseResponse) {
 	r.BaseResponse[topic] = response
 	r.Topic = append(r.Topic, topic)
 }

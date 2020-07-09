@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"KServer/library/iface/socket/ziface"
+	"KServer/library/iface/isocket/ziface"
 	"KServer/library/socket/zlog"
 	"encoding/json"
 	"gopkg.in/yaml.v3"

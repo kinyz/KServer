@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"KServer/library/iface/utils"
+	"KServer/library/iface/iutils"
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/satori/go.uuid"
@@ -12,7 +12,7 @@ import (
 type Encrypt struct {
 }
 
-func NewIEncrypt() utils.IEncrypt {
+func NewIEncrypt() iutils.IEncrypt {
 	return &Encrypt{}
 }
 

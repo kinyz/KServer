@@ -1,9 +1,9 @@
 package server
 
 import (
-	"KServer/library/iface/server"
+	"KServer/library/iface/iserver"
 	"fmt"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,7 +15,7 @@ type Server struct {
 	Port string
 }
 
-func NewIServer(head string) server.IServer {
+func NewIServer(head string) iserver.IServer {
 	return &Server{
 		Id: head + uuid.NewV4().String(),
 	}

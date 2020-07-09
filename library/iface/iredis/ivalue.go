@@ -1,4 +1,4 @@
-package redis
+package iredis
 
 import "github.com/golang/protobuf/proto"
 

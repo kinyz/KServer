@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"KServer/library/iface/kafka"
+	"KServer/library/iface/ikafka"
 	"fmt"
 	"github.com/Shopify/sarama"
 	"log"
@@ -13,7 +13,7 @@ type Producer struct {
 	sarama.SyncProducer
 }
 
-func NewIProducer() kafka.IProducer {
+func NewIProducer() ikafka.IProducer {
 	return &Producer{}
 }
 
@@ -100,8 +100,13 @@ func (p *Producer) GetAsyncProducer() sarama.AsyncProducer {
 	return p.AsyncProducer
 }
 func (p *Producer) CloseAsyncProducer() {
-	p.AsyncProducer.Close()
+	if err := p.AsyncProducer.Close(); err != nil {
+		fmt.Println("CloseAsyncProducer Fail err=", err)
+	}
+
 }
 func (p *Producer) CloseSyncProducer() {
-	p.SyncProducer.Close()
+	if err := p.SyncProducer.Close(); err != nil {
+		fmt.Println("CloseSyncProducer Fail err=", err)
+	}
 }

@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"KServer/library/iface/kafka"
+	"KServer/library/iface/ikafka"
 	"github.com/Shopify/sarama"
 )
 
@@ -10,7 +10,7 @@ type Consumer struct {
 	sarama.ConsumerGroup
 }
 
-func NewIConsumer() kafka.IConsumer {
+func NewIConsumer() ikafka.IConsumer {
 	return &Consumer{}
 }
 

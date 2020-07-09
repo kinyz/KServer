@@ -1,21 +1,21 @@
-package kafka
+package config
 
 import (
-	"KServer/library/iface/kafka"
+	"KServer/library/iface/ikafka"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"os"
 )
 
-type KafkaConf struct {
+type KafkaConfig struct {
 	Env  bool   `yaml:"env"`
 	Host string `yaml:"host"`
 	Port string `yaml:"port"`
 }
 
-func NewKafkaConf(filename string) kafka.IKafkaConf {
-	conf := &KafkaConf{}
+func NewKafkaConfig(filename string) ikafka.IKafkaConf {
+	conf := &KafkaConfig{}
 	path, _ := os.Getwd()
 	yamlFile, err := ioutil.ReadFile(path + filename)
 	if err != nil {
@@ -35,6 +35,6 @@ func NewKafkaConf(filename string) kafka.IKafkaConf {
 	return conf
 }
 
-func (c *KafkaConf) GetAddr() string {
+func (c *KafkaConfig) GetAddr() string {
 	return c.Host + ":" + c.Port
 }

@@ -1,22 +1,22 @@
 package kafka
 
-import "KServer/library/iface/kafka"
+import "KServer/library/iface/ikafka"
 
 type Kafka struct {
-	ISend   kafka.ISend
-	IRouter kafka.IRouter
+	ISend   ikafka.ISend
+	IRouter ikafka.IRouter
 }
 
-func NewIKafka() kafka.IKafka {
+func NewIKafka() ikafka.IKafka {
 	return &Kafka{
 		ISend:   NewISend(),
 		IRouter: NewIRouter(),
 	}
 }
-func (m *Kafka) Send() kafka.ISend {
+func (m *Kafka) Send() ikafka.ISend {
 	return m.ISend
 }
 
-func (m *Kafka) Router() kafka.IRouter {
+func (m *Kafka) Router() ikafka.IRouter {
 	return m.IRouter
 }

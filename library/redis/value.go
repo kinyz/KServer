@@ -1,7 +1,7 @@
 package redis
 
 import (
-	iface "KServer/library/iface/redis"
+	iface "KServer/library/iface/iredis"
 	"github.com/garyburd/redigo/redis"
 )
 

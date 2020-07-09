@@ -1,14 +1,14 @@
 package utils
 
 import (
-	"KServer/library/iface/utils"
+	"KServer/library/iface/iutils"
 	"github.com/golang/protobuf/proto"
 )
 
 type Protobuf struct {
 }
 
-func NewIProtobuf() utils.IProtobuf {
+func NewIProtobuf() iutils.IProtobuf {
 	return &Protobuf{}
 }
 func (p *Protobuf) Encode(table proto.Message) []byte {

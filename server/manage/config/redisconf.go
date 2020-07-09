@@ -1,4 +1,4 @@
-package redis
+package config
 
 import (
 	"gopkg.in/yaml.v3"
@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-type RedisConf struct {
+type RedisConfig struct {
 	Env    bool   `yaml:"env"`
 	Master Master `yaml:"master"`
 	Slave  Slave  `yaml:"slave"`
@@ -32,8 +32,8 @@ type Slave struct {
 }
 
 // 取redis配置文件
-func NewRedisConf(fileName string) *RedisConf {
-	conf := &RedisConf{}
+func NewRedisConfig(fileName string) *RedisConfig {
+	conf := &RedisConfig{}
 	path, _ := os.Getwd()
 	yamlFile, err := ioutil.ReadFile(path + fileName)
 
@@ -59,9 +59,9 @@ func NewRedisConf(fileName string) *RedisConf {
 	}
 	return conf
 }
-func (c *RedisConf) GetMasterAddr() string {
+func (c *RedisConfig) GetMasterAddr() string {
 	return c.Master.Host + ":" + c.Master.Port
 }
-func (c *RedisConf) GetSlaveAddr() string {
+func (c *RedisConfig) GetSlaveAddr() string {
 	return c.Master.Host + ":" + c.Master.Port
 }

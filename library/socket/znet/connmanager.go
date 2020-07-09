@@ -1,7 +1,7 @@
 package znet
 
 import (
-	"KServer/library/iface/socket/ziface"
+	"KServer/library/iface/isocket/ziface"
 	"errors"
 	"fmt"
 	"sync"

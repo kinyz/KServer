@@ -1,12 +1,11 @@
 package main
 
 import (
-	"KServer/library/kafka"
-	"KServer/library/redis"
 	"KServer/library/socket/znet"
 	"KServer/server/AgentServer/response"
 	"KServer/server/AgentServer/services"
-	manage2 "KServer/server/manage"
+	"KServer/server/manage"
+	"KServer/server/manage/config"
 	"KServer/server/utils"
 	"fmt"
 	"os"
@@ -15,15 +14,20 @@ import (
 )
 
 func main() {
+	mConf := config.NewManageConfig()
+	mConf.Client = true
+	mConf.DB.Redis = true
+	mConf.Server.Head = utils.AgentServerTopic
+	mConf.Message.Kafka = true
 	// 新建管理器
-	m := manage2.NewManage(utils.AgentServerTopic)
+	m := manage.NewManage(mConf)
 	// 管理器启动redis Pool
-	conf := redis.NewRedisConf(utils.RedisConFile)
-	m.DB().Redis().StartMasterPool(conf.GetMasterAddr(), conf.Master.PassWord, conf.Master.MaxIdle, conf.Master.MaxActive)
-	m.DB().Redis().StartSlavePool(conf.GetSlaveAddr(), conf.Slave.PassWord, conf.Slave.MaxIdle, conf.Slave.MaxActive)
+	Redisconf := config.NewRedisConfig(utils.RedisConFile)
+	m.DB().Redis().StartMasterPool(Redisconf.GetMasterAddr(), Redisconf.Master.PassWord, Redisconf.Master.MaxIdle, Redisconf.Master.MaxActive)
+	m.DB().Redis().StartSlavePool(Redisconf.GetSlaveAddr(), Redisconf.Slave.PassWord, Redisconf.Slave.MaxIdle, Redisconf.Slave.MaxActive)
 
 	// 启动消息通道
-	conf2 := kafka.NewKafkaConf(utils.KafkaConFile)
+	conf2 := config.NewKafkaConfig(utils.KafkaConFile)
 	err := m.Message().Kafka().Send().Open([]string{conf2.GetAddr()})
 	if err != nil {
 		fmt.Println("消息通道启动失败")
@@ -79,8 +83,8 @@ func main() {
 	// 关闭socket
 	//socket.Stop()
 	// 关闭redis
-	m.DB().Redis().CloseMaster()
-	m.DB().Redis().CloseSlave()
+	_ = m.DB().Redis().CloseMaster()
+	_ = m.DB().Redis().CloseSlave()
 	// 关闭消息通道
 	m.Message().Kafka().Send().Close()
 	closefunc()

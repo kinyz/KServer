@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"KServer/library/iface/utils"
+	"KServer/library/iface/iutils"
 	"encoding/json"
 	"github.com/golang/protobuf/proto"
 )
@@ -11,7 +11,7 @@ type ByteTool struct {
 	Data []byte
 }
 
-func NewIByte(data []byte) utils.IByte {
+func NewIByte(data []byte) iutils.IByte {
 	return &ByteTool{Data: data}
 }
 func (b *ByteTool) ProtoBuf(value proto.Message) error {

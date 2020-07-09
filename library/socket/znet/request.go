@@ -1,6 +1,6 @@
 package znet
 
-import "KServer/library/iface/socket/ziface"
+import "KServer/library/iface/isocket/ziface"
 
 type Request struct {
 	conn ziface.IConnection //已经和客户端建立好的 链接

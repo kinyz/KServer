@@ -1,7 +1,7 @@
-package kafka
+package ikafka
 
 import (
-	"KServer/library/iface/utils"
+	"KServer/library/iface/iutils"
 	"time"
 )
 
@@ -13,7 +13,7 @@ type IKafka interface {
 type IResponse interface {
 	GetTopic() string
 	GetKey() string
-	GetData() utils.IByte
+	GetData() iutils.IByte
 	GetTimestamp() time.Time
 	GetOffset() int64
 	GetPartition() int32

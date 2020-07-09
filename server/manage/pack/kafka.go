@@ -1,7 +1,7 @@
 package pack
 
 import (
-	iface "KServer/library/iface/kafka"
+	iface "KServer/library/iface/ikafka"
 	"KServer/library/kafka"
 	"KServer/server/utils"
 )

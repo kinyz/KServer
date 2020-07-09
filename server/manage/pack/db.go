@@ -1,21 +1,26 @@
 package pack
 
 import (
-	"KServer/library/iface/redis"
-	redis2 "KServer/library/redis"
+	"KServer/library/iface/iredis"
+	"KServer/library/redis"
+	"KServer/server/manage/config"
 )
 
 type IDb interface {
-	Redis() redis.IRedisPool
+	Redis() iredis.IRedisPool
 }
 
 type Db struct {
-	IRedisPool redis.IRedisPool
+	IRedisPool iredis.IRedisPool
 }
 
-func NewIDbPack() IDb {
-	return &Db{IRedisPool: redis2.NewIRedisPool()}
+func NewIDbPack(config *config.ManageConfig) IDb {
+	db := &Db{}
+	if config.DB.Redis {
+		db.IRedisPool = redis.NewIRedisPool()
+	}
+	return db
 }
-func (d *Db) Redis() redis.IRedisPool {
+func (d *Db) Redis() iredis.IRedisPool {
 	return d.IRedisPool
 }

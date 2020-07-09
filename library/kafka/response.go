@@ -1,8 +1,8 @@
 package kafka
 
 import (
-	"KServer/library/iface/kafka"
-	"KServer/library/iface/utils"
+	"KServer/library/iface/ikafka"
+	"KServer/library/iface/iutils"
 	"time"
 )
 
@@ -13,10 +13,10 @@ type Response struct {
 	Timestamp time.Time
 	Offset    int64
 	Partition int32
-	utils.IByte
+	iutils.IByte
 }
 
-func NewIResponse() kafka.IResponse {
+func NewIResponse() ikafka.IResponse {
 	return &Response{}
 }
 func (r *Response) GetTopic() string {
@@ -26,7 +26,7 @@ func (r *Response) GetKey() string {
 	return r.Key
 }
 
-func (r *Response) GetData() utils.IByte {
+func (r *Response) GetData() iutils.IByte {
 	return r.IByte
 }
 func (r *Response) GetTimestamp() time.Time {

@@ -3,19 +3,23 @@ package main
 import (
 	"KServer/library/iris"
 	"KServer/library/mongo"
-	"KServer/library/redis"
 	"KServer/server/LoginServer/service"
 	"KServer/server/manage"
+	"KServer/server/manage/config"
 	"KServer/server/utils"
 )
 
 func main() {
 
-	m := manage.NewManage(utils.LoginTopic)
+	ManageConfig := config.NewManageConfig()
+	ManageConfig.Server.Head = utils.LoginTopic
+	ManageConfig.DB.Redis = true
 
-	conf := redis.NewRedisConf(utils.RedisConFile)
-	m.DB().Redis().StartMasterPool(conf.GetMasterAddr(), conf.Master.PassWord, conf.Master.MaxIdle, conf.Master.MaxActive)
-	m.DB().Redis().StartSlavePool(conf.GetSlaveAddr(), conf.Slave.PassWord, conf.Slave.MaxIdle, conf.Slave.MaxActive)
+	m := manage.NewManage(ManageConfig)
+
+	redisConfig := config.NewRedisConfig(utils.RedisConFile)
+	m.DB().Redis().StartMasterPool(redisConfig.GetMasterAddr(), redisConfig.Master.PassWord, redisConfig.Master.MaxIdle, redisConfig.Master.MaxActive)
+	m.DB().Redis().StartSlavePool(redisConfig.GetSlaveAddr(), redisConfig.Slave.PassWord, redisConfig.Slave.MaxIdle, redisConfig.Slave.MaxActive)
 
 	Mongo := mongo.NewMongo()
 	Mongo.Init()

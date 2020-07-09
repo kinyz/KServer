@@ -1,4 +1,4 @@
-package utils
+package iutils
 
 type IEncrypt interface {
 	Md5V(str string) string

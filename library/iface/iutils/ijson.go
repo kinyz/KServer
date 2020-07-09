@@ -1,4 +1,4 @@
-package utils
+package iutils
 
 type IJson interface {
 	StructToJson(tableStruct interface{}) (string, error)

@@ -1,7 +1,7 @@
 package services
 
 import (
-	"KServer/library/iface/socket/ziface"
+	"KServer/library/iface/isocket/ziface"
 	"KServer/library/socket/zlog"
 	"KServer/library/socket/znet"
 	"KServer/server/manage"
@@ -15,19 +15,15 @@ type Connect struct {
 	IManage manage.IManage
 }
 
-func (c *Connect) Response(data utils.IDataPack) {
-	panic("implement me")
-}
-
 func NewConnect(m manage.IManage) *Connect {
 	return &Connect{IManage: m}
 }
 
 func (c *Connect) PreHandle(request ziface.IRequest) {
 
-	c.IManage.Message().Kafka().DataPack().UnPack(request.GetData())
+	_ = c.IManage.Message().Kafka().DataPack().UnPack(request.GetData())
 	acc := &pd.Account{}
-	c.IManage.Message().Kafka().DataPack().GetDate().ProtoBuf(acc)
+	_ = c.IManage.Message().Kafka().DataPack().GetDate().ProtoBuf(acc)
 	//fmt.Println()
 	switch c.IManage.Message().Kafka().DataPack().GetMsgId() {
 	case utils.OauthAccount:
@@ -79,7 +75,7 @@ func (c *Connect) ResponseOauth(data utils.IDataPack) {
 
 		// 升级客户端验证状态
 		acc := &pd.Account{}
-		data.GetDate().ProtoBuf(acc)
+		_ = data.GetDate().ProtoBuf(acc)
 		c.IManage.Client().UpgradeClient(data.GetClientConnId(), acc)
 
 	default:

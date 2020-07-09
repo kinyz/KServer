@@ -1,7 +1,6 @@
 package services
 
 import (
-	iface2 "KServer/library/iface/kafka"
 	"KServer/server/manage"
 	"KServer/server/utils"
 	"KServer/server/utils/pd"
@@ -36,11 +35,5 @@ func (o *Oauth) ResponseOauth(data utils.IDataPack) {
 				o.IManage.Message().Kafka().DataPack().GetClientConnId(), utils.OauthAccountSuccess, o.IManage.Message().Kafka().DataPack().GetDate().Bytes()))
 
 	}
-
-}
-
-func (o *Oauth) OauthAccount(req iface2.IResponse) {
-
-	fmt.Println("发送消息至=", o.IManage.Message().Kafka().DataPack().GetServerId())
 
 }

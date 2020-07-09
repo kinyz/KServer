@@ -2,6 +2,7 @@ package pack
 
 import (
 	"KServer/server/client"
+	"KServer/server/manage/config"
 	"KServer/server/utils/pd"
 )
 
@@ -19,11 +20,14 @@ type ClientPack struct {
 	Client map[uint32]client.IClient
 }
 
-func NewIClientPack() IClientPack {
-	return &ClientPack{
-		Client: make(map[uint32]client.IClient),
-		ConnId: make(map[string]uint32),
+func NewIClientPack(config *config.ManageConfig) IClientPack {
+	if config.Client {
+		return &ClientPack{
+			Client: make(map[uint32]client.IClient),
+			ConnId: make(map[string]uint32),
+		}
 	}
+	return nil
 }
 
 func (m *ClientPack) AddClient(id uint32) bool {

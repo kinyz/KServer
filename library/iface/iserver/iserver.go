@@ -1,4 +1,4 @@
-package server
+package iserver
 
 type IServer interface {
 	GetId() string

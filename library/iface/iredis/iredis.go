@@ -1,4 +1,4 @@
-package redis
+package iredis
 
 type IRedisPool interface {
 	StartMasterPool(addr string, password string, maxIdle int, maxActive int) bool

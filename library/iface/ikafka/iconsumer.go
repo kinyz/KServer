@@ -1,4 +1,4 @@
-package kafka
+package ikafka
 
 import "github.com/Shopify/sarama"
 

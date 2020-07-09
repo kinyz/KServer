@@ -1,4 +1,4 @@
-package utils
+package iutils
 
 import "github.com/golang/protobuf/proto"
 

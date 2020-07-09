@@ -1,7 +1,7 @@
 package client
 
 import (
-	"KServer/library/iface/socket/ziface"
+	"KServer/library/iface/isocket/ziface"
 	"KServer/server/utils/pd"
 )
 

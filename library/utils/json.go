@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"KServer/library/iface/utils"
+	"KServer/library/iface/iutils"
 	"encoding/json"
 	"fmt"
 )
@@ -9,7 +9,7 @@ import (
 type Json struct {
 }
 
-func NewIJson() utils.IJson {
+func NewIJson() iutils.IJson {
 	return &Json{}
 }
 

@@ -1,14 +1,14 @@
 package kafka
 
 import (
-	"KServer/library/iface/kafka"
+	"KServer/library/iface/ikafka"
 )
 
 type Send struct {
-	producer kafka.IProducer
+	producer ikafka.IProducer
 }
 
-func NewISend() kafka.ISend {
+func NewISend() ikafka.ISend {
 	return &Send{}
 
 }
