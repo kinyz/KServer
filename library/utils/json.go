@@ -3,7 +3,6 @@ package utils
 import (
 	"KServer/library/iface/iutils"
 	"encoding/json"
-	"fmt"
 )
 
 type Json struct {
@@ -13,33 +12,15 @@ func NewIJson() iutils.IJson {
 	return &Json{}
 }
 
-// Struct转JSON
-func (j *Json) StructToJson(tableStruct interface{}) (string, error) {
-	b, err := json.Marshal(&tableStruct)
+func (j *Json) Encode(table interface{}) []byte {
+	b, err := json.Marshal(&table)
 	if err != nil {
-		fmt.Println("err", err)
-		return "", err
+		return nil
 	}
-	return string(b), err
+	return b
 }
 
-// Struct转BYTE
-func (j *Json) StructToByte(tableStruct interface{}) ([]byte, error) {
-	b, err := json.Marshal(&tableStruct)
-	if err != nil {
-		fmt.Println("err", err)
-		return nil, err
-	}
-	return b, err
-}
+func (j *Json) Decode(data []byte, table interface{}) error {
 
-//JSON转Struct
-func (j *Json) JsonToStruct(str string, tableStruct interface{}) error {
-
-	if err := json.Unmarshal([]byte(str), &tableStruct); err == nil {
-		return err
-	} else {
-		return err
-	}
-
+	return json.Unmarshal(data, &table)
 }

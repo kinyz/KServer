@@ -11,15 +11,14 @@ import (
 )
 
 var Session *mgo.Session
-var MongoInterface Mongo
 
-type Mongo interface {
+type IMongo interface {
 	Init()
 	GetSession() *mgo.Session
 	GetCollection(collName string) *mgo.Collection
 }
 
-type IMongo struct {
+type Mongo struct {
 	Env             bool   `yaml:"Env"`
 	Name            string `yaml:"Name"`
 	Host            string `yaml:"Host"`
@@ -29,19 +28,12 @@ type IMongo struct {
 	MaxReConnectNum int    `yaml:"MaxReConnectNum"`
 }
 
-func NewMongo() Mongo {
-	MongoInterface = &IMongo{}
-	return MongoInterface
+func NewMongo() IMongo {
+	return &Mongo{}
 }
-func (m *IMongo) Init() {
+func (m *Mongo) Init() {
 	m.ReadConfFile("conf/mongo.yaml")
-	if m.Env {
-		m.Host = os.Getenv("ENV_MONGO_Host")
-		m.Port = os.Getenv("ENV_MONGO_Port")
-		m.Name = os.Getenv("ENV_MONGO_Name")
-		m.User = os.Getenv("ENV_MONGO_User")
-		m.Password = os.Getenv("ENV_MONGO_PassWord")
-	}
+
 	connectInfo := &mgo.DialInfo{
 		Addrs:     []string{m.Host + ":" + m.Port},
 		Direct:    false,
@@ -63,7 +55,7 @@ func (m *IMongo) Init() {
 }
 
 // 读取mongo配置文件
-func (m *IMongo) ReadConfFile(fileName string) {
+func (m *Mongo) ReadConfFile(fileName string) {
 	yamlFile, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
@@ -72,19 +64,21 @@ func (m *IMongo) ReadConfFile(fileName string) {
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
+
+	if m.Env {
+		m.Host = os.Getenv("ENV_MONGO_Host")
+		m.Port = os.Getenv("ENV_MONGO_Port")
+		m.Name = os.Getenv("ENV_MONGO_Name")
+		m.User = os.Getenv("ENV_MONGO_User")
+		m.Password = os.Getenv("ENV_MONGO_PassWord")
+	}
 }
-func (m *IMongo) GetSession() *mgo.Session {
+func (m *Mongo) GetSession() *mgo.Session {
 	err := Session.Ping()
 	if err != nil {
 		fmt.Println("MongoDB 数据库丢失连接 失败信息:" + err.Error())
 		m.ReadConfFile("conf/mongo.yaml")
-		if m.Env {
-			m.Host = os.Getenv("ENV_MONGO_Host")
-			m.Port = os.Getenv("ENV_MONGO_Port")
-			m.Name = os.Getenv("ENV_MONGO_Name")
-			m.User = os.Getenv("ENV_MONGO_User")
-			m.Password = os.Getenv("ENV_MONGO_PassWord")
-		}
+
 		for i := 0; i <= m.MaxReConnectNum; i++ {
 			fmt.Printf("MongoDB 正在进行重新连接...当前第 %d次", i)
 			connectInfo := &mgo.DialInfo{
@@ -112,7 +106,7 @@ func (m *IMongo) GetSession() *mgo.Session {
 	}
 	return Session
 }
-func (m *IMongo) GetCollection(collName string) *mgo.Collection {
+func (m *Mongo) GetCollection(collName string) *mgo.Collection {
 	m.ReadConfFile("conf/mongo.yaml")
 	if m.Env {
 		m.Name = os.Getenv("ENV_MONGO_Name")

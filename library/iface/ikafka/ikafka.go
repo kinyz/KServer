@@ -27,6 +27,7 @@ type IRouter interface {
 	//	AddRouter()
 	AddRouter(topic string, response BaseResponse)
 	StartListen(addr []string, group string, offset int64) func()
+	StartOtherListen(topic []string, addr []string, group string, offset int64) func()
 }
 
 type ISend interface {

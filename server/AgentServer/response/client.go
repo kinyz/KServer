@@ -3,17 +3,21 @@ package response
 import (
 	"KServer/manage"
 	"KServer/server/utils"
+	"fmt"
 )
 
-type AllServerResponse struct {
+type ClientResponse struct {
 	IManage manage.IManage
 }
 
-func NewAllServerResponse(m manage.IManage) *AllServerResponse {
-	return &AllServerResponse{IManage: m}
+func NewClientResponse(m manage.IManage) *ClientResponse {
+	return &ClientResponse{IManage: m}
 }
 
-func (s *AllServerResponse) ResponseAllStop(data utils.IDataPack) {
+// 用于接收客户端主题
+func (c *ClientResponse) ResponseClient(data utils.IDataPack) {
+
+	fmt.Println("客户端回调")
 	//s.IManage.Message().DataPack().UnPack(req.GetData().Bytes())
 
 	//fmt.Println("服务器全体收到消息", s.IManage.DataPack().GetMsgId())

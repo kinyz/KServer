@@ -37,7 +37,7 @@ type DataPack struct {
 }
 
 func NewIDataPack() IDataPack {
-	return &DataPack{IProtobuf: utils.NewIProtobuf(), IByte: utils.NewIByte([]byte(""))}
+	return &DataPack{IProtobuf: utils.NewIProtobuf(), IByte: utils.NewIByte()}
 }
 
 func (m *DataPack) Pack(id uint32, clientId string, serverId string, connId uint32, msgId uint32, data []byte) []byte {

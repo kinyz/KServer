@@ -20,8 +20,11 @@ const (
 	ClientTopicListening = "ChatMessage_Listening"
 	ClientGroup          = "ChatServer"
 	ClientSendKey        = "Send"
-	ClientSendWord       = 200
-	ClientSendPrivate    = 201
+
+	ClientNotifyId = 1000 // 用于通知客户端的线程id
+
+	ClientSendWord    = 200
+	ClientSendPrivate = 201
 
 	ClientConnectOauth        = 100 // 客户端数据验证
 	ClientConnectOauthSuccess = 101 // 客户端成功返回代码

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"KServer/manage"
+	"KServer/manage/config"
 	"KServer/server/OauthServer/services"
-	"KServer/server/manage"
-	"KServer/server/manage/config"
 	"KServer/server/utils"
 )
 
@@ -11,6 +11,7 @@ func main() {
 	conf := config.NewManageConfig()
 	conf.Message.Kafka = true
 	conf.Server.Head = utils.OauthTopic
+	conf.DB.Redis = true
 	m := manage.NewManage(conf)
 	// 新建一个服务管理器
 

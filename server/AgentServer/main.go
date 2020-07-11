@@ -1,11 +1,10 @@
 package main
 
 import (
-	"KServer/library/socket/znet"
+	"KServer/manage"
+	"KServer/manage/config"
 	"KServer/server/AgentServer/response"
 	"KServer/server/AgentServer/services"
-	"KServer/server/manage"
-	"KServer/server/manage/config"
 	"KServer/server/utils"
 	"fmt"
 	"os"
@@ -15,7 +14,8 @@ import (
 
 func main() {
 	mConf := config.NewManageConfig()
-	mConf.Client = true
+	mConf.Socket.Client = true
+	mConf.Socket.Server = true
 	mConf.DB.Redis = true
 	mConf.Server.Head = utils.AgentServerTopic
 	mConf.Message.Kafka = true
@@ -39,14 +39,15 @@ func main() {
 	alls := response.NewAllServerResponse(m)
 
 	// 新建socket server
-	socket := znet.NewServer()
+	//socketServer := socket.NewSocket()
 
 	// 注册连接钩子 和连接验证路由
 	connect := services.NewConnect(m)
 	//注册链接hook回调函数
-	socket.SetOnConnStart(connect.DoConnectionBegin)
-	socket.SetOnConnStop(connect.DoConnectionLost)
-	socket.AddRouter(utils.OauthMsgId, connect)
+	m.Socket().Server().SetOnConnStart(connect.DoConnectionBegin)
+	m.Socket().Server().SetOnConnStop(connect.DoConnectionLost)
+	// 注册socket路由
+	m.Socket().Server().AddHandle(utils.OauthMsgId, connect)
 
 	// 添加监听路由
 	m.Message().Kafka().AddRouter(m.Server().GetId(), utils.OauthMsgId, connect.ResponseOauth)
@@ -59,7 +60,7 @@ func main() {
 	//开启scoket服务
 	//s.Serve()
 
-	socket.Start()
+	m.Socket().Server().Serve()
 	fmt.Println("[服务器加载完毕]")
 
 	sigs := make(chan os.Signal, 1)

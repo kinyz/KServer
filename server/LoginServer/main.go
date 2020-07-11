@@ -3,9 +3,9 @@ package main
 import (
 	"KServer/library/iris"
 	"KServer/library/mongo"
+	"KServer/manage"
+	"KServer/manage/config"
 	"KServer/server/LoginServer/service"
-	"KServer/server/manage"
-	"KServer/server/manage/config"
 	"KServer/server/utils"
 )
 

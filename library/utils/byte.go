@@ -11,8 +11,8 @@ type ByteTool struct {
 	Data []byte
 }
 
-func NewIByte(data []byte) iutils.IByte {
-	return &ByteTool{Data: data}
+func NewIByte() iutils.IByte {
+	return &ByteTool{}
 }
 func (b *ByteTool) ProtoBuf(value proto.Message) error {
 	return b.Protobuf.Decode(b.Data, value)

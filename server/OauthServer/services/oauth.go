@@ -1,7 +1,7 @@
 package services
 
 import (
-	"KServer/server/manage"
+	"KServer/manage"
 	"KServer/server/utils"
 	"KServer/server/utils/pd"
 	"fmt"

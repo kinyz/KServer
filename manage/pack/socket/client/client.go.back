@@ -1,0 +1,99 @@
+package client
+
+import (
+	"KServer/manage/client"
+	"KServer/manage/config"
+	"KServer/server/utils/pd"
+	"fmt"
+)
+
+type IClientPack interface {
+	AddClient(id uint32) bool
+	GetOnlineNum() int
+	GetClient(uuid string) client.IClient
+	GetClientByConnId(id uint32) client.IClient
+	RemoveClient(id uint32)
+	UpgradeClient(id uint32, account *pd.Account) bool
+	GetClientStateByUUID(uuid string) bool
+}
+
+type ClientPack struct {
+	ConnId map[string]uint32
+	Client map[uint32]client.IClient
+}
+
+func NewIClientPack(config *config.ManageConfig) IClientPack {
+	if config.Client {
+		return &ClientPack{
+			Client: make(map[uint32]client.IClient),
+			ConnId: make(map[string]uint32),
+		}
+	}
+	return nil
+}
+
+func (m *ClientPack) AddClient(id uint32) bool {
+	if m.Client[id] != nil {
+		return false
+	}
+
+	m.Client[id] = &client.Client{
+		Oauth:   false,
+		Account: &pd.Account{},
+		Closefunc: func() {
+			//用于初始化指针
+		},
+	}
+
+	return true
+}
+func (m *ClientPack) GetOnlineNum() int {
+	return len(m.Client)
+}
+
+// 升级客户端
+func (m *ClientPack) UpgradeClient(id uint32, account *pd.Account) bool {
+
+	if m.ConnId[account.UUID] != 0 {
+		return false
+	}
+
+	m.Client[id].SetOauth(true)
+	m.Client[id].SetAccount(account)
+	m.ConnId[m.Client[id].GetUUID()] = id
+	//fmt.Println("升级客户端2",id)
+
+	//fmt.Println("新增客户端2=", m.ConnId[m.Client[id].GetUUID()] )
+	return true
+
+}
+func (m *ClientPack) GetClient(uuid string) client.IClient {
+	if m.GetClientStateByUUID(uuid) {
+		return m.Client[m.ConnId[uuid]]
+	}
+	return nil
+}
+func (m *ClientPack) GetClientByConnId(id uint32) client.IClient {
+
+	fmt.Println(m.Client[id])
+
+	return m.Client[id]
+}
+func (m *ClientPack) RemoveClient(id uint32) {
+
+	if m.Client[id] != nil {
+		m.Client[id].Close()
+		delete(m.ConnId, m.Client[id].GetUUID())
+		delete(m.Client, id)
+		//c.Close()
+		//fmt.Println("移除客户端", m.ConnId, m.Client)
+
+	}
+
+}
+func (m *ClientPack) GetClientStateByUUID(uuid string) bool {
+	if m.ConnId[uuid] != 0 {
+		return true
+	}
+	return false
+}

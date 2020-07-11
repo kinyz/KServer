@@ -1,9 +1,7 @@
 package utils
 
 import (
-	"KServer/library/iface/isocket/ziface"
-	"KServer/library/socket/zlog"
-	"encoding/json"
+	"KServer/library/iface/isocket"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
@@ -17,10 +15,10 @@ type GlobalObj struct {
 	/*
 		Server
 	*/
-	TcpServer ziface.IServer //当前Zinx的全局Server对象
-	Host      string         `yaml:"Host"`    //当前服务器主机IP
-	TcpPort   int            `yaml:"TcpPort"` //当前服务器主机监听端口号
-	Name      string         `yaml:"Name"`    //当前服务器名称
+	TcpServer isocket.IServer //当前Zinx的全局Server对象
+	Host      string          `yaml:"Host"`    //当前服务器主机IP
+	TcpPort   int             `yaml:"TcpPort"` //当前服务器主机监听端口号
+	Name      string          `yaml:"Name"`    //当前服务器名称
 
 	/*
 		Zinx
@@ -40,9 +38,9 @@ type GlobalObj struct {
 	/*
 		logger
 	*/
-	LogDir        string `yaml:"LogDir"`  //日志所在文件夹 默认"./log"
-	LogFile       string `yaml:"LogFile"` //日志文件名称   默认""  --如果没有设置日志文件，打印信息将打印至stderr
-	LogDebugClose bool   //是否关闭Debug日志级别调试信息 默认false  -- 默认打开debug信息
+	//LogDir        string `yaml:"LogDir"`  //日志所在文件夹 默认"./log"
+	//LogFile       string `yaml:"LogFile"` //日志文件名称   默认""  --如果没有设置日志文件，打印信息将打印至stderr
+	//LogDebugClose bool   //是否关闭Debug日志级别调试信息 默认false  -- 默认打开debug信息
 }
 
 /*
@@ -60,35 +58,6 @@ func PathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
-}
-
-//读取用户的配置文件
-func (g *GlobalObj) Reload() {
-
-	if confFileExists, _ := PathExists(g.ConfFilePath); confFileExists != true {
-		//fmt.Println("Config File ", g.ConfFilePath , " is not exist!!")
-		return
-	}
-
-	data, err := ioutil.ReadFile(g.ConfFilePath)
-	if err != nil {
-		panic(err)
-	}
-	//将json数据解析到struct中
-	err = json.Unmarshal(data, g)
-	if err != nil {
-		panic(err)
-	}
-
-	//Logger 设置
-	if g.LogFile != "" {
-		//zlog.SetLogFile(g.LogDir, g.LogFile)
-		zlog.SetLogFile(g.LogDir, g.LogFile)
-	}
-	if g.LogDebugClose == true {
-		//zlog.CloseDebug()
-		zlog.CloseDebug()
-	}
 }
 
 //读取用户的配置文件
@@ -126,9 +95,9 @@ func init() {
 		WorkerPoolSize:   10,
 		MaxWorkerTaskLen: 1024,
 		MaxMsgChanLen:    1024,
-		LogDir:           "./log",
-		LogFile:          "",
-		LogDebugClose:    false,
+		//	LogDir:           "./log",
+		//		LogFile:          "",
+		//		LogDebugClose:    false,
 	}
 
 	//从配置文件中加载一些用户配置的参数

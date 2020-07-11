@@ -1,7 +1,7 @@
 package main
 
 import (
-	"KServer/library/socket/znet"
+	"KServer/library/socket"
 	tool2 "KServer/library/utils"
 	"KServer/server/utils"
 	pb "KServer/server/utils/pd"
@@ -33,18 +33,18 @@ func ClientTest(i uint32) {
 	}
 	imsg := utils.NewIDataPack()
 	user := &pb.Account{
-		UUID:    "27c340b1-6d1b-4893-a14c-abb1f81829c4",
+		UUID:    "27c340b1-6d1b-4893-a14c-abb1f81829c3",
 		Account: "116175894",
 		Token:   "123ebf90eb9f79be7ed1baaac6704617",
 		Online:  0,
 		State:   0,
 	}
 
-	dp := znet.NewDataPack()
+	dp := socket.NewDataPack()
 
 	v := pd.Encode(user)
 
-	msg, _ := dp.Pack(znet.NewMsgPackage(utils.OauthMsgId, imsg.Pack(utils.OauthMsgId, user.UUID, "1", 0, utils.OauthAccount, v)))
+	msg, _ := dp.Pack(socket.NewMsgPackage(utils.OauthMsgId, utils.OauthAccount, imsg.Pack(utils.OauthMsgId, user.UUID, "1", 0, utils.OauthAccount, v)))
 	//fmt.Println(msg)
 	//for i := 0; i < 5; i++ {
 	_, err = conn.Write(msg)
@@ -74,7 +74,7 @@ func ClientTest(i uint32) {
 
 		if msgHead.GetDataLen() > 0 {
 			//msg 是有data数据的，需要再次读取data数据
-			msg := msgHead.(*znet.Message)
+			msg := msgHead.(*socket.Message)
 			msg.Data = make([]byte, msg.GetDataLen())
 
 			//根据dataLen从io中读取字节流

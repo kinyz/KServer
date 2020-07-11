@@ -3,7 +3,7 @@ package service
 import (
 	"KServer/library/mongo"
 	utils2 "KServer/library/utils"
-	"KServer/server/manage"
+	"KServer/manage"
 	"KServer/server/utils"
 	"KServer/server/utils/pd"
 	"fmt"
@@ -14,11 +14,11 @@ import (
 type User struct {
 	Account *pd.Account
 	Manage  manage.IManage
-	Mongo   mongo.Mongo
+	Mongo   mongo.IMongo
 	Encrypt *utils2.Encrypt
 }
 
-func NewUser(manage manage.IManage, m mongo.Mongo) *User {
+func NewUser(manage manage.IManage, m mongo.IMongo) *User {
 	u := User{}
 	u.Manage = manage
 	u.Mongo = m
