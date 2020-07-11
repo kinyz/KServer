@@ -15,6 +15,7 @@ type IClientPack interface {
 	GetState(uuid string) bool
 	GetOnlineNum() int
 	GetIdByConnId(id uint32) string
+	SendAll(id uint32, msgId uint32, data []byte)
 	SetClose(uuid string, fun func())
 }
 
@@ -64,6 +65,20 @@ func (cp *ClientPack) GetOnlineNum() int {
 	return len(cp.Client)
 }
 
+// 通知全部客户端
+func (cp *ClientPack) SendAll(id uint32, msgId uint32, data []byte) {
+
+	for _, uuid := range cp.Client {
+		if cp.GetState(cp.GetIdByConnId(uuid.GetConnId())) {
+			err := uuid.SendBuff(id, msgId, data)
+			if err != nil {
+				fmt.Println("全局消息发送失败", uuid)
+			}
+		}
+	}
+	//return len(cp.Client)
+}
+
 func (cp *ClientPack) GetIdByConnId(id uint32) string {
 	return cp.ConnId[id]
 }
@@ -80,19 +95,21 @@ func (cp *ClientPack) SetClose(uuid string, fun func()) {
 func (cp *ClientPack) SetCloseTimer(uuid string) {
 	go func() {
 		for {
-			fmt.Println("正在执行定时器")
+			//fmt.Println("正在执行定时器")
 			if !cp.GetState(uuid) {
-				fmt.Println("发现掉线的客户端")
+				//	fmt.Println("发现掉线的客户端")
 				if cp.close[uuid] != nil {
 					fmt.Println("正在移除监听")
-					cp.close[uuid]()
-					delete(cp.close, uuid)
+					go func() {
+						cp.close[uuid]()
+						delete(cp.close, uuid)
+					}()
 					break
 				}
 
 				//cp.close[k]()
 			}
-			fmt.Println(cp.close)
+			//	fmt.Println(cp.close)
 
 			time.Sleep(5 * time.Second)
 		}

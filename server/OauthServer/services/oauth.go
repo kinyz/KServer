@@ -28,11 +28,16 @@ func (o *Oauth) ResponseOauth(data utils.IDataPack) {
 		err := o.IManage.Message().Kafka().DataPack().GetDate().ProtoBuf(acc)
 		if err != nil {
 			fmt.Println("err=", err)
+			return
 		}
 		fmt.Println("数据接收", acc.UUID, acc.PassWord, acc.Token)
 		o.IManage.Message().Kafka().Send().Async(data.GetServerId(), o.IManage.Server().GetId(),
-			o.IManage.Message().Kafka().DataPack().Pack(utils.OauthMsgId, o.IManage.Message().Kafka().DataPack().GetClientId(), o.IManage.Message().Kafka().DataPack().GetServerId(),
-				o.IManage.Message().Kafka().DataPack().GetClientConnId(), utils.OauthAccountSuccess, o.IManage.Message().Kafka().DataPack().GetDate().Bytes()))
+			o.IManage.Message().Kafka().DataPack().Pack(
+				data.GetId(),
+				utils.OauthAccountSuccess,
+				acc.UUID,
+				o.IManage.Message().Kafka().DataPack().GetServerId(),
+				o.IManage.Message().Kafka().DataPack().GetDate().Bytes()))
 
 	}
 

@@ -22,13 +22,13 @@ func main() {
 	// 新建管理器
 	m := manage.NewManage(mConf)
 	// 管理器启动redis Pool
-	Redisconf := config.NewRedisConfig(utils.RedisConFile)
-	m.DB().Redis().StartMasterPool(Redisconf.GetMasterAddr(), Redisconf.Master.PassWord, Redisconf.Master.MaxIdle, Redisconf.Master.MaxActive)
-	m.DB().Redis().StartSlavePool(Redisconf.GetSlaveAddr(), Redisconf.Slave.PassWord, Redisconf.Slave.MaxIdle, Redisconf.Slave.MaxActive)
+	redisConf := config.NewRedisConfig(utils.RedisConFile)
+	m.DB().Redis().StartMasterPool(redisConf.GetMasterAddr(), redisConf.Master.PassWord, redisConf.Master.MaxIdle, redisConf.Master.MaxActive)
+	m.DB().Redis().StartSlavePool(redisConf.GetSlaveAddr(), redisConf.Slave.PassWord, redisConf.Slave.MaxIdle, redisConf.Slave.MaxActive)
 
 	// 启动消息通道
-	conf2 := config.NewKafkaConfig(utils.KafkaConFile)
-	err := m.Message().Kafka().Send().Open([]string{conf2.GetAddr()})
+	kafkaConf := config.NewKafkaConfig(utils.KafkaConFile)
+	err := m.Message().Kafka().Send().Open([]string{kafkaConf.GetAddr()})
 	if err != nil {
 		fmt.Println("消息通道启动失败")
 		return
@@ -47,15 +47,18 @@ func main() {
 	m.Socket().Server().SetOnConnStart(connect.DoConnectionBegin)
 	m.Socket().Server().SetOnConnStop(connect.DoConnectionLost)
 	// 注册socket路由
-	m.Socket().Server().AddHandle(utils.OauthMsgId, connect)
+	m.Socket().Server().AddHandle(utils.OauthId, connect) //添加开始连接路由
 
 	// 添加监听路由
-	m.Message().Kafka().AddRouter(m.Server().GetId(), utils.OauthMsgId, connect.ResponseOauth)
-	m.Message().Kafka().AddRouter(m.Server().GetId(), utils.AgentConnStop, is.ResponseOauth)
-	m.Message().Kafka().AddRouter(utils.AgentServerAllTopic, utils.AgentAllConnStop, alls.ResponseAllStop)
+	m.Message().Kafka().AddRouter(m.Server().GetId(), utils.OauthId, connect.ResponseOauth)
+	m.Message().Kafka().AddRouter(m.Server().GetId(), utils.AgentSendAllClient, is.SendAllClient) // 通知所有客户端消息
+
+	// 所有服务器接受消息
+	//m.Message().Kafka().AddRouter(utils.AgentServerAllTopic, utils.AgentConnStop, alls.RemoveClient) // 通知客户端下线
+	m.Message().Kafka().AddRouter(utils.AgentServerAllTopic, utils.AgentAllServerId, alls.ResponseAllServer)
 
 	// 开启监听 和返回通道关闭
-	closefunc := m.Message().Kafka().StartListen([]string{conf2.GetAddr()}, m.Server().GetId(), -1)
+	closefunc := m.Message().Kafka().StartListen([]string{kafkaConf.GetAddr()}, m.Server().GetId(), -1)
 
 	//开启scoket服务
 	//s.Serve()

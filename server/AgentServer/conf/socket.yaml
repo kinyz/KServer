@@ -1,6 +1,6 @@
 Name: Agent Server
 Host: 0.0.0.0
-TcpPort: 8889
+TcpPort: 8888
 MaxConn: 3000
 WorkerPoolSize: 10
 LogDir: ./log

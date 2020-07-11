@@ -4,6 +4,7 @@ import (
 	iface "KServer/library/iface/ikafka"
 	"KServer/library/kafka"
 	"KServer/server/utils"
+	"fmt"
 )
 
 type IKafkaPack interface {
@@ -37,6 +38,7 @@ func (m *KafkaPack) AddRouter(topic string, id uint32, response func(data utils.
 	}
 	m.topic[topic][id] = response
 	m.IKafka.Router().AddRouter(topic, m)
+	fmt.Println(m.topic)
 }
 
 func (m *KafkaPack) Send() iface.ISend {
@@ -44,7 +46,10 @@ func (m *KafkaPack) Send() iface.ISend {
 }
 func (m *KafkaPack) ResponseHandle(req iface.IResponse) {
 	_ = m.IDataPack.UnPack(req.GetData().Bytes())
-	m.topic[req.GetTopic()][m.IDataPack.GetId()](m.IDataPack)
+	fmt.Println(req.GetTopic())
+	if m.topic[req.GetTopic()][m.IDataPack.GetId()] != nil {
+		m.topic[req.GetTopic()][m.IDataPack.GetId()](m.IDataPack)
+	}
 }
 
 func (m *KafkaPack) DataPack() utils.IDataPack {

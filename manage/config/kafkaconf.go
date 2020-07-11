@@ -17,6 +17,7 @@ type KafkaConfig struct {
 func NewKafkaConfig(filename string) ikafka.IKafkaConf {
 	conf := &KafkaConfig{}
 	path, _ := os.Getwd()
+	//fmt.Println(path + filename)
 	yamlFile, err := ioutil.ReadFile(path + filename)
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)

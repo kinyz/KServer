@@ -37,9 +37,8 @@ func (c *Connect) PreHandle(request isocket.IRequest) {
 		if c.IManage.Socket().Client().GetState(acc.UUID) {
 			request.GetConnection().SendMsg(request.GetID(), utils.ClientOnlineError, []byte("当前账号已在线"))
 			request.GetConnection().Stop()
-
 			if c.IManage.Socket().Client().GetState(acc.UUID) {
-				c.IManage.Socket().Client().GetClient(acc.UUID).Send(utils.ClientConnectConnIdError, []byte("当前账号已在其他地方登陆"))
+				c.IManage.Socket().Client().GetClient(acc.UUID).Send(request.GetID(), utils.ClientConnectConnIdError, []byte("当前账号已在其他地方登陆"))
 				c.IManage.Socket().Client().GetClient(acc.UUID).Stop()
 			}
 			return
@@ -59,6 +58,8 @@ func (c *Connect) PreHandle(request isocket.IRequest) {
 		}
 		// 新增接收客户端的kafka路由
 		c.IManage.Message().Kafka().AddRouter(clientTopic, utils.ClientNotifyId, clientResponse.ResponseClient)
+		c.IManage.Message().Kafka().AddRouter(clientTopic, utils.ClientRemove, clientResponse.ResponseRemoveClient)
+
 		// 启动客户端所需启动的监听
 		go func() {
 			c.IManage.Socket().Client().SetClose(acc.UUID, c.IManage.Message().Kafka().StartOtherListen(
@@ -67,8 +68,10 @@ func (c *Connect) PreHandle(request isocket.IRequest) {
 				c.IManage.Tool().Encrypt().NewUuid(),
 				-1))
 
-			data := c.IManage.Message().Kafka().DataPack().Pack(request.GetMsgID(), acc.UUID,
-				c.IManage.Server().GetId(), request.GetConnection().GetConnID(), c.IManage.Message().Kafka().DataPack().GetMsgId(),
+			data := c.IManage.Message().Kafka().DataPack().Pack(request.GetID(),
+				request.GetMsgID(),
+				acc.UUID,
+				c.IManage.Server().GetId(),
 				c.IManage.Message().Kafka().DataPack().GetDate().Bytes())
 			//c.IManage.Message().DataPack()
 			c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
@@ -85,7 +88,7 @@ func (c *Connect) DoConnectionBegin(conn isocket.IConnection) {
 	//conn.SetProperty(GlobalMessage.ClientConnectOauthKey, false)
 	//c.IManage.Client().GetClientByConnId(conn.GetConnID()).SetConn(conn)
 	//c.IManage.Client().GetClient(conn.GetConnID()).SetUUID("")
-	err := conn.SendMsg(utils.OauthMsgId, utils.OauthAccount, []byte("DoConnection BEGIN..."))
+	err := conn.SendMsg(utils.OauthId, utils.OauthAccount, []byte("DoConnection BEGIN..."))
 	if err != nil {
 		//	zlog.Error(err)
 	}
@@ -114,18 +117,18 @@ func (c *Connect) ResponseOauth(data utils.IDataPack) {
 
 	case utils.OauthAccountSuccess:
 
-		err := c.IManage.Socket().Client().GetClient(data.GetClientId()).Send(data.GetId(), data.GetRawDate())
+		err := client.Send(data.GetId(), data.GetMsgId(), data.GetDate().Bytes())
 		if err != nil {
 			fmt.Println("客户端回调消息失败")
 		}
 
 	default:
 		//	fmt.Println("我会执行吗")
-		err := c.IManage.Socket().Client().GetClient(data.GetClientId()).Send(data.GetId(), data.GetRawDate())
+		err := client.Send(data.GetId(), data.GetMsgId(), data.GetDate().Bytes())
 		if err != nil {
 			fmt.Println("客户端回调消息失败")
 		}
-		c.IManage.Socket().Client().GetClient(data.GetClientId()).Stop()
+		client.Stop()
 
 	}
 

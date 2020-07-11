@@ -1,7 +1,7 @@
 package main
 
 import (
-	"KServer/library/iris"
+	"KServer/library/http"
 	"KServer/library/mongo"
 	"KServer/manage"
 	"KServer/manage/config"
@@ -23,7 +23,7 @@ func main() {
 
 	Mongo := mongo.NewMongo()
 	Mongo.Init()
-	Iris := iris.NewIrIrisInterface()
+	Iris := http.NewIrIrisInterface()
 	app := Iris.GetApp()
 	user := service.NewUser(m, Mongo)
 	Iris.RegisterPostRouter("/v1/user/accountLogin", user.PreHandler, user.AccountLogin)

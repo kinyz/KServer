@@ -33,7 +33,7 @@ func ClientTest(i uint32) {
 	}
 	imsg := utils.NewIDataPack()
 	user := &pb.Account{
-		UUID:    "27c340b1-6d1b-4893-a14c-abb1f81829c3",
+		UUID:    "27c340b1-6d1b-4893-a14c-abb1f81829c1",
 		Account: "116175894",
 		Token:   "123ebf90eb9f79be7ed1baaac6704617",
 		Online:  0,
@@ -44,7 +44,7 @@ func ClientTest(i uint32) {
 
 	v := pd.Encode(user)
 
-	msg, _ := dp.Pack(socket.NewMsgPackage(utils.OauthMsgId, utils.OauthAccount, imsg.Pack(utils.OauthMsgId, user.UUID, "1", 0, utils.OauthAccount, v)))
+	msg, _ := dp.Pack(socket.NewMsgPackage(utils.OauthId, utils.OauthAccount, imsg.Pack(utils.OauthId, utils.OauthAccount, user.UUID, "", v)))
 	//fmt.Println(msg)
 	//for i := 0; i < 5; i++ {
 	_, err = conn.Write(msg)
@@ -83,25 +83,29 @@ func ClientTest(i uint32) {
 				fmt.Println("client unpack data err")
 				return
 			}
-			if imsg.UnPack(msg.Data) == nil {
-				fmt.Println(imsg.GetClientId())
+			//if imsg.UnPack(msg.Data) == nil {
 
-				fmt.Println(imsg.GetMsgId())
+			fmt.Println(msg.Data)
+			acc := &pb.Account{}
+			//err = imsg.GetDate().ProtoBuf(acc)
+			err = pd.Decode(msg.Data, acc)
+			if err == nil {
+				fmt.Println("err=", err)
 
-				fmt.Println(imsg.GetClientConnId())
+				fmt.Println(acc.UUID)
 
-				fmt.Println(imsg.GetServerId())
+				fmt.Println(acc.Token)
 
-				fmt.Println(imsg.GetDate().String())
-				acc := &pb.Account{}
-				err := imsg.GetDate().ProtoBuf(acc)
-				if err != nil {
-					fmt.Println("err=", err)
-				}
-				fmt.Println("acc=" + acc.Account)
+				//	fmt.Println(imsg.GetClientConnId())
+
+				fmt.Println(acc.Account)
+
+				fmt.Println(acc.PassWord)
+				//	}
+				//	fmt.Println("acc=" + acc.Account)
 			}
 
-			fmt.Printf("==> Client receive Msg: Id = %d, len = %d , data = %s\n", msg.Id, msg.DataLen, msg.Data)
+			fmt.Printf("==> Client receive Msg: Id = %d, msgid = %d , data = %s\n", msg.Id, msg.MsgId, msg.Data)
 		}
 
 		time.Sleep(time.Second)

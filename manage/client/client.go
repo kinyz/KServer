@@ -5,8 +5,8 @@ import (
 )
 
 type IClient interface {
-	Send(msgId uint32, data []byte) error
-	SendBuff(msgId uint32, data []byte) error
+	Send(id uint32, msgId uint32, data []byte) error
+	SendBuff(id uint32, msgId uint32, data []byte) error
 	GetConnId() uint32
 	Stop()
 	GetToken() string
@@ -20,13 +20,13 @@ type Client struct {
 func NewClient(conn isocket.IConnection, Token string) IClient {
 	return &Client{Conn: conn, Token: Token}
 }
-func (c *Client) Send(msgId uint32, data []byte) error {
-	return c.Conn.SendMsg(1, msgId, data)
+func (c *Client) Send(id uint32, msgId uint32, data []byte) error {
+	return c.Conn.SendMsg(id, msgId, data)
 
 }
 
-func (c *Client) SendBuff(msgId uint32, data []byte) error {
-	return c.Conn.SendBuffMsg(1, msgId, data)
+func (c *Client) SendBuff(id uint32, msgId uint32, data []byte) error {
+	return c.Conn.SendBuffMsg(id, msgId, data)
 }
 
 func (c *Client) Stop() {

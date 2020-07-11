@@ -26,7 +26,7 @@ func main() {
 
 	oauth := services.NewOauth(m)
 
-	m.Message().Kafka().AddRouter(utils.OauthTopic, utils.OauthMsgId, oauth.ResponseOauth)
+	m.Message().Kafka().AddRouter(utils.OauthTopic, utils.OauthId, oauth.ResponseOauth)
 	m.Message().Kafka().StartListen([]string{kafkaConf.GetAddr()}, utils.OauthTopic, -1)
 
 	m.Server().Start()
