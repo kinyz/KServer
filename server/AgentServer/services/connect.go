@@ -33,7 +33,7 @@ func (c *Connect) PreHandle(request isocket.IRequest) {
 		acc := &pd.Account{}
 		_ = c.IManage.Message().Kafka().DataPack().GetDate().ProtoBuf(acc)
 
-		fmt.Println("当前客户端状态", c.IManage.Socket().Client().GetState(acc.UUID))
+		//fmt.Println("当前客户端状态", c.IManage.Socket().Client().GetState(acc.UUID))
 		if c.IManage.Socket().Client().GetState(acc.UUID) {
 			request.GetConnection().SendMsg(request.GetID(), utils.ClientOnlineError, []byte("当前账号已在线"))
 			request.GetConnection().Stop()
@@ -81,6 +81,10 @@ func (c *Connect) PreHandle(request isocket.IRequest) {
 
 }
 
+func (c *Connect) PostHandle(request isocket.IRequest) {
+
+}
+
 //创建连接的时候执行
 func (c *Connect) DoConnectionBegin(conn isocket.IConnection) {
 
@@ -99,7 +103,19 @@ func (c *Connect) DoConnectionBegin(conn isocket.IConnection) {
 func (c *Connect) DoConnectionLost(conn isocket.IConnection) {
 
 	//c.IManage.Client().RemoveClient(conn.GetConnID())
-	fmt.Println("[断开连接] IP:", conn.RemoteAddr(), " ConnId:", conn.GetConnID())
+	fmt.Println("[断开连接] IP:", conn.RemoteAddr(), " ConnId:", conn.GetConnID(), " UUID:", c.IManage.Socket().Client().GetIdByConnId(conn.GetConnID()))
+
+	c.IManage.Message().Kafka().Send().Sync(utils.OauthTopic, c.IManage.Server().GetId(),
+		c.IManage.Message().Kafka().DataPack().Pack(
+			utils.OauthId,
+			utils.OauthAccountClose,
+			c.IManage.Socket().Client().GetIdByConnId(conn.GetConnID()),
+			c.IManage.Server().GetId(),
+			[]byte("close")))
+
+	//c.IManage.Message().DataPack()
+	//	c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
+
 	c.IManage.Socket().Client().Remove(conn.GetConnID())
 
 }

@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 )

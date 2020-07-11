@@ -27,6 +27,5 @@ require (
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
-	gopkg.in/yaml.v2 v2.3.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 )

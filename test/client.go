@@ -26,16 +26,16 @@ func ClientTest(i uint32) {
 	//3秒之后发起测试请求，给服务端开启服务的机会
 	//time.Sleep(3 * time.Second)
 
-	conn, err := net.Dial("tcp", "127.0.0.1:8889")
+	conn, err := net.Dial("tcp", "140.143.247.121:11640")
 	if err != nil {
 		fmt.Println("client start err, exit!")
 		return
 	}
 	imsg := utils.NewIDataPack()
 	user := &pb.Account{
-		UUID:    "27c340b1-6d1b-4893-a14c-abb1f81829c1",
-		Account: "116175894",
-		Token:   "123ebf90eb9f79be7ed1baaac6704617",
+		UUID:    "cab02938-4a6a-4e50-b393-94da981e6660",
+		Account: "123",
+		Token:   "ea456525075570667b1cccaf99356ad0",
 		Online:  0,
 		State:   0,
 	}
@@ -86,24 +86,6 @@ func ClientTest(i uint32) {
 			//if imsg.UnPack(msg.Data) == nil {
 
 			fmt.Println(msg.Data)
-			acc := &pb.Account{}
-			//err = imsg.GetDate().ProtoBuf(acc)
-			err = pd.Decode(msg.Data, acc)
-			if err == nil {
-				fmt.Println("err=", err)
-
-				fmt.Println(acc.UUID)
-
-				fmt.Println(acc.Token)
-
-				//	fmt.Println(imsg.GetClientConnId())
-
-				fmt.Println(acc.Account)
-
-				fmt.Println(acc.PassWord)
-				//	}
-				//	fmt.Println("acc=" + acc.Account)
-			}
 
 			fmt.Printf("==> Client receive Msg: Id = %d, msgid = %d , data = %s\n", msg.Id, msg.MsgId, msg.Data)
 		}

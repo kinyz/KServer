@@ -87,7 +87,7 @@ func (cp *ClientPack) SetClose(uuid string, fun func()) {
 	if cp.close[uuid] == nil {
 		cp.close[uuid] = fun
 		cp.SetCloseTimer(uuid)
-		fmt.Println("成功设置关闭回调")
+		//fmt.Println("成功设置关闭回调")
 	}
 
 }
@@ -99,7 +99,7 @@ func (cp *ClientPack) SetCloseTimer(uuid string) {
 			if !cp.GetState(uuid) {
 				//	fmt.Println("发现掉线的客户端")
 				if cp.close[uuid] != nil {
-					fmt.Println("正在移除监听")
+					//fmt.Println("正在移除监听")
 					go func() {
 						cp.close[uuid]()
 						delete(cp.close, uuid)

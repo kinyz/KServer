@@ -64,8 +64,9 @@ const (
 const (
 	OauthTopic = "Oauth_" // 验证服务器监听topic
 	// 发送id
-	OauthId      = 100 // 总id 发送
-	OauthAccount = 101 // 验证账号msgId
+	OauthId           = 100 // 总id 发送
+	OauthAccount      = 101 // 验证账号msgId
+	OauthAccountClose = 102 // 验证账号msgId
 
 	// 返回id
 	OauthAccountSuccess           = 102 // 客户端成功返回代码
