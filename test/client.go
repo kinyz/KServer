@@ -26,7 +26,7 @@ func ClientTest(i uint32) {
 	//3秒之后发起测试请求，给服务端开启服务的机会
 	//time.Sleep(3 * time.Second)
 
-	conn, err := net.Dial("tcp", "140.143.247.121:11640")
+	conn, err := net.Dial("tcp", "127.0.0.1:8889")
 	if err != nil {
 		fmt.Println("client start err, exit!")
 		return
@@ -44,7 +44,7 @@ func ClientTest(i uint32) {
 
 	v := pd.Encode(user)
 
-	msg, _ := dp.Pack(socket.NewMsgPackage(utils.OauthId, utils.OauthAccount, imsg.Pack(utils.OauthId, utils.OauthAccount, user.UUID, "", v)))
+	msg, _ := dp.Pack(socket.NewMsgPackage(50, utils.OauthAccount, imsg.Pack(utils.OauthId, utils.OauthAccount, user.UUID, "", v)))
 	//fmt.Println(msg)
 	//for i := 0; i < 5; i++ {
 	_, err = conn.Write(msg)

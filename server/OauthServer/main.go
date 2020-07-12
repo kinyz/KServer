@@ -5,6 +5,7 @@ import (
 	"KServer/manage/config"
 	"KServer/server/OauthServer/services"
 	"KServer/server/utils"
+	"time"
 )
 
 func main() {
@@ -29,11 +30,20 @@ func main() {
 	m.Message().Kafka().AddRouter(utils.OauthTopic, utils.OauthId, oauth.ResponseOauth)
 	m.Message().Kafka().StartListen([]string{kafkaConf.GetAddr()}, utils.OauthTopic, -1)
 
+	// 服务中心注册服务
+	//d:=generalService.NewIDiscovery(m)
+	m.Message().Kafka().CallRegisterService(utils.OauthId, utils.OauthTopic, m.Server().GetId(), m.Server().GetHost(), m.Server().GetPort(), utils.KafkaType)
+
 	m.Server().Start()
+
+	m.Message().Kafka().CallLogoutService(utils.OauthId, utils.OauthTopic, m.Server().GetId())
+	time.Sleep(5 * time.Second)
 	Close(m)
+
 }
 
 func Close(m manage.IManage) {
+	// 注销服务中心
 
 	_ = m.DB().Redis().CloseMaster()
 	_ = m.DB().Redis().CloseSlave()

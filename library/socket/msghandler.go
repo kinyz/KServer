@@ -11,6 +11,7 @@ type MsgHandle struct {
 	Handle         map[uint32]isocket.IHandle //存放每个Id 所对应的处理方法的map属性
 	WorkerPoolSize uint32                     //业务工作Worker池的数量
 	TaskQueue      []chan isocket.IRequest    //Worker负责取任务的消息队列
+	CustomHandle   isocket.IHandle
 	//Response map[uint32]ziface.IResponse
 }
 
@@ -40,9 +41,17 @@ func (mh *MsgHandle) SendMsgToTaskQueue(request isocket.IRequest) {
 func (mh *MsgHandle) DoMsgHandler(request isocket.IRequest) {
 	handler, ok := mh.Handle[request.GetID()]
 	if !ok {
-		fmt.Println("Agreement Id = ", request.GetID(), " is not FOUND!")
-		//消息id错误 直接关闭
-		_ = request.GetConnection().SendMsg(0, 666, []byte("id error，close now"))
+		//fmt.Println("Agreement Id = ", request.GetID(), " is not FOUND!")
+
+		//如果没有id的请求将会执行自定义协议头
+		if mh.CustomHandle != nil {
+			fmt.Println("执行自定义头")
+			mh.CustomHandle.PreHandle(request)
+			mh.CustomHandle.PostHandle(request)
+			return
+		}
+
+		request.GetConnection().SendBuffMsg(0, 0, []byte("无服务"))
 		request.GetConnection().Stop()
 		return
 	}
@@ -51,6 +60,14 @@ func (mh *MsgHandle) DoMsgHandler(request isocket.IRequest) {
 	handler.PreHandle(request)
 	//handler.RunMsg(request.GetMsgID())
 	handler.PostHandle(request)
+}
+
+//添加一个自定义协议头 如果没有id的请求将会执行
+func (mh *MsgHandle) AddCustomHandle(handle isocket.IHandle) {
+
+	mh.CustomHandle = handle
+	fmt.Println("Socket Add CustomHandle ")
+
 }
 
 //添加一个协议头

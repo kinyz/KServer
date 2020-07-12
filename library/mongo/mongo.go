@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"KServer/library/iface/imongo"
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/yaml.v3"
@@ -12,12 +13,6 @@ import (
 
 var Session *mgo.Session
 
-type IMongo interface {
-	Init()
-	GetSession() *mgo.Session
-	GetCollection(collName string) *mgo.Collection
-}
-
 type Mongo struct {
 	Env             bool   `yaml:"Env"`
 	Name            string `yaml:"Name"`
@@ -28,10 +23,10 @@ type Mongo struct {
 	MaxReConnectNum int    `yaml:"MaxReConnectNum"`
 }
 
-func NewMongo() IMongo {
+func NewMongo() imongo.IMongo {
 	return &Mongo{}
 }
-func (m *Mongo) Init() {
+func (m *Mongo) Start() {
 	m.ReadConfFile("conf/mongo.yaml")
 
 	connectInfo := &mgo.DialInfo{

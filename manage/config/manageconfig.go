@@ -1,5 +1,10 @@
 package config
 
+import (
+	"KServer/library/iface/ikafka"
+	"KServer/server/utils"
+)
+
 type ManageConfig struct {
 	// message开关
 	Message struct {
@@ -9,6 +14,7 @@ type ManageConfig struct {
 	DB struct {
 		// 是否开启redis管理
 		Redis bool
+		Mongo bool
 	}
 	Server struct {
 		// 设置服务器头
@@ -23,5 +29,13 @@ type ManageConfig struct {
 
 func NewManageConfig() *ManageConfig {
 	conf := &ManageConfig{}
+	//conf.Socket.Server =false
 	return conf
+}
+
+func (m *ManageConfig) GetRedisConfig() *RedisConfig {
+	return NewRedisConfig(utils.RedisConFile)
+}
+func (m *ManageConfig) GetKafkaConfig() ikafka.IKafkaConf {
+	return NewKafkaConfig(utils.KafkaConFile)
 }

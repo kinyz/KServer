@@ -73,7 +73,10 @@ func (r *Router) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.
 			Offset:    msg.Offset,
 			IByte:     r.IByte,
 		}
-		r.BaseResponse[msg.Topic].ResponseHandle(req)
+		if r.BaseResponse[msg.Topic] != nil {
+			r.BaseResponse[msg.Topic].ResponseHandle(req)
+
+		}
 		//session.MarkMessage(msg, "")
 		//session
 		//session.MemberID()

@@ -123,6 +123,11 @@ func (s *Server) AddHandle(id uint32, handle isocket.IHandle) {
 	s.msgHandler.AddHandle(id, handle)
 }
 
+//路由功能：给当前服务注册一个自定义头 找不到id时调用，供客户端链接处理使用
+func (s *Server) AddCustomHandle(handle isocket.IHandle) {
+	s.msgHandler.AddCustomHandle(handle)
+}
+
 //得到链接管理
 func (s *Server) GetConnMgr() isocket.IConnManager {
 	return s.ConnMgr
@@ -154,6 +159,7 @@ func (s *Server) CallOnConnStop(conn isocket.IConnection) {
 	}
 }
 
+/*
 func init() {
 	//fmt.Println(zinxLogo)
 	//fmt.Println(topLine)
@@ -164,3 +170,6 @@ func init() {
 		utils.GlobalObject.MaxConn,
 		utils.GlobalObject.MaxPacketSize)
 }
+
+
+*/

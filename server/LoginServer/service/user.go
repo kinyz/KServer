@@ -1,7 +1,6 @@
 package service
 
 import (
-	"KServer/library/mongo"
 	utils2 "KServer/library/utils"
 	"KServer/manage"
 	"KServer/server/utils"
@@ -14,14 +13,12 @@ import (
 type User struct {
 	Account *pd.Account
 	Manage  manage.IManage
-	Mongo   mongo.IMongo
 	Encrypt *utils2.Encrypt
 }
 
-func NewUser(manage manage.IManage, m mongo.IMongo) *User {
+func NewUser(manage manage.IManage) *User {
 	u := User{}
 	u.Manage = manage
-	u.Mongo = m
 	return &u
 }
 func (u *User) PreHandler(ctx iris.Context) {
@@ -37,8 +34,8 @@ func (u *User) AccountRegister(ctx iris.Context) {
 		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": "账号或密码不能为空"})
 		return
 	}
-	coll := u.Mongo.GetCollection("user_account")
-	err := coll.Find(bson.M{"Account": u.Account.Account}).One(&u.Account)
+	coll := u.Manage.DB().Mongo().GetCollection("user_account")
+	err := coll.Find(bson.M{"account": u.Account.Account}).One(&u.Account)
 	if err == nil {
 		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": "账号已存在"})
 		return
@@ -95,7 +92,7 @@ func (u *User) AccountLogin(ctx iris.Context) {
 		} else {
 
 	*/
-	coll := u.Mongo.GetCollection("user_account")
+	coll := u.Manage.DB().Mongo().GetCollection("user_account")
 	loginPassWord := u.Account.PassWord
 	err := coll.Find(bson.M{"account": u.Account.Account}).One(&u.Account)
 	if err != nil {

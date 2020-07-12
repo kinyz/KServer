@@ -19,6 +19,8 @@ type SocketPack struct {
 
 func NewSocketPack(conf *config.ManageConfig) ISocketPack {
 	s := &SocketPack{}
+
+	//fmt.Println(conf.Socket.Server)
 	if conf.Socket.Server {
 		s.ServerPack = socket.NewSocket()
 	}

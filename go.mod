@@ -9,6 +9,7 @@ require (
 	github.com/garyburd/redigo v1.6.0
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/gorilla/websocket v1.4.1
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kataras/iris/v12 v12.1.8

@@ -10,6 +10,8 @@ type IServer interface {
 	Serve()
 	//路由功能：给当前服务注册一个通信协议，供客户端链接处理使用
 	AddHandle(id uint32, handle IHandle)
+	//路由功能：给当前服务注册一个自定义头 找不到id时调用，供客户端链接处理使用
+	AddCustomHandle(handle IHandle)
 	//得到链接管理
 	GetConnMgr() IConnManager
 	//设置该Server的连接创建时Hook函数

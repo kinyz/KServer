@@ -8,8 +8,9 @@ import (
 type Handle struct {
 	Id uint32
 	//Msg     map[uint32]func(response ziface.IResponse)
-	Handle map[uint32]isocket.IHandle //存放每个MsgId 所对应的处理方法的map属性
+	Handle map[uint32]isocket.IHandle //存放每个Id 所对应的处理方法的map属性
 	//Response ziface.IResponse
+
 }
 
 func NewIAgreement(id uint32, handle isocket.IHandle) *Handle {
