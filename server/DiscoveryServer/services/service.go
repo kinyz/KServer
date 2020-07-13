@@ -3,6 +3,7 @@ package services
 import (
 	"KServer/manage"
 	"KServer/manage/discover/pd"
+	"KServer/proto"
 	"KServer/server/utils"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
@@ -18,7 +19,7 @@ func NewServiceDiscovery(m manage.IManage) *Service {
 }
 
 // 服务头
-func (s *Service) ServiceHandle(data utils.IDataPack) {
+func (s *Service) ServiceHandle(data proto.IDataPack) {
 	switch data.GetMsgId() {
 	case utils.ServiceDiscoveryRegister:
 		{
@@ -43,11 +44,11 @@ func (s *Service) ServiceHandle(data utils.IDataPack) {
 }
 
 // 注册服务
-func (s *Service) RegisterService(data utils.IDataPack) {
+func (s *Service) RegisterService(data proto.IDataPack) {
 
 	fmt.Println("收到线程1")
 	info := &pd.Discovery{}
-	err := data.GetDate().ProtoBuf(info)
+	err := data.GetData().ProtoBuf(info)
 
 	if err != nil {
 		fmt.Println(data.GetId(), "服务注册解析失败")
@@ -63,7 +64,7 @@ func (s *Service) RegisterService(data utils.IDataPack) {
 		info.State = utils.ServiceDiscoveryState
 		err = coll.Insert(info)
 		fmt.Println("添加服务: ", info.Id, info.Topic, info.ServerId)
-		s.IManage.Message().Kafka().Send().Async(utils.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), data.GetRawDate())
+		s.IManage.Message().Kafka().Send().Async(utils.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), data.GetRawData())
 
 	}
 
@@ -84,12 +85,12 @@ func (s *Service) RegisterService(data utils.IDataPack) {
 }
 
 // 删除服务
-func (s *Service) LogoutService(data utils.IDataPack) {
+func (s *Service) LogoutService(data proto.IDataPack) {
 	fmt.Println("收到线程2")
 
 	fmt.Println("收到线程1")
 	info := &pd.Discovery{}
-	err := data.GetDate().ProtoBuf(info)
+	err := data.GetData().ProtoBuf(info)
 
 	if err != nil {
 		fmt.Println(data.GetId(), "服务注册解析失败")
@@ -110,7 +111,7 @@ func (s *Service) LogoutService(data utils.IDataPack) {
 		return
 	}
 
-	s.IManage.Message().Kafka().Send().Async(utils.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), data.GetRawDate())
+	s.IManage.Message().Kafka().Send().Async(utils.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), data.GetRawData())
 
 	var allInfo []pd.Discovery
 
@@ -133,13 +134,13 @@ func (s *Service) LogoutService(data utils.IDataPack) {
 }
 
 // 查询健康服务
-func (s *Service) CheckService(data utils.IDataPack) {
+func (s *Service) CheckService(data proto.IDataPack) {
 	fmt.Println("收到线程3")
 
 }
 
 // 查询所有健康服务
-func (s *Service) CheckAllService(data utils.IDataPack) {
+func (s *Service) CheckAllService(data proto.IDataPack) {
 
 	fmt.Println("收到线程4")
 

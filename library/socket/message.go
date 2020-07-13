@@ -1,58 +1,46 @@
 package socket
 
+import (
+	"KServer/library/iface/isocket"
+	"KServer/proto"
+)
+
 type Message struct {
-	DataLen uint32 //消息的长度
-	Id      uint32 //消息的ID
-	MsgId   uint32 //
-	Data    []byte //消息的内容
+	DataLen uint32
+	Msg     *proto.Message
 }
 
 //创建一个Message消息包
-func NewMsgPackage(id uint32, msgId uint32, data []byte) *Message {
-	return &Message{
-		DataLen: uint32(len(data)),
-		Id:      id,
-		MsgId:   msgId,
-		Data:    data,
-	}
+func NewSocketMsgPack() isocket.IMessage {
+	return &Message{}
 }
 
-//获取消息数据段长度
-func (msg *Message) GetDataLen() uint32 {
-	return msg.DataLen
+func (m *Message) GetId() uint32 {
+	return m.Msg.Id
 }
 
-//获取协议ID
-func (msg *Message) GetId() uint32 {
-	return msg.Id
+func (m *Message) GetMsgId() uint32 {
+	return m.Msg.MsgId
 }
 
-//获取消息ID
-func (msg *Message) GetMsgId() uint32 {
-	return msg.MsgId
+func (m *Message) GetClientId() string {
+	return m.Msg.ClientId
+}
+func (m *Message) GetServerId() string {
+	return m.Msg.ServerId
+}
+func (m *Message) GetData() []byte {
+	return m.Msg.Data
 }
 
-//获取消息内容
-func (msg *Message) GetData() []byte {
-	return msg.Data
+func (m *Message) SetData(data []byte) {
+	m.Msg.Data = data
 }
 
-//设置消息数据段长度
-func (msg *Message) SetDataLen(len uint32) {
-	msg.DataLen = len
+func (m *Message) SetMessage(message *proto.Message) {
+	m.Msg = message
 }
 
-//设计消息ID
-func (msg *Message) SetMsgId(msgId uint32) {
-	msg.MsgId = msgId
-}
-
-//设计协议ID
-func (msg *Message) SetId(Id uint32) {
-	msg.Id = Id
-}
-
-//设计消息内容
-func (msg *Message) SetData(data []byte) {
-	msg.Data = data
+func (m *Message) GetDataLen() uint32 {
+	return m.DataLen
 }

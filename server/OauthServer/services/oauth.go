@@ -2,13 +2,14 @@ package services
 
 import (
 	"KServer/manage"
+	"KServer/proto"
 	"KServer/server/utils"
 	"KServer/server/utils/pd"
 	"fmt"
 )
 
 type IOauth interface {
-	ResponseOauth(data utils.IDataPack)
+	ResponseOauth(data proto.IDataPack)
 }
 
 type Oauth struct {
@@ -19,14 +20,14 @@ func NewOauth(i manage.IManage) IOauth {
 	return &Oauth{IManage: i}
 }
 
-func (o *Oauth) ResponseOauth(data utils.IDataPack) {
+func (o *Oauth) ResponseOauth(data proto.IDataPack) {
 	fmt.Println("收到网关信息", o.IManage.Message().Kafka().DataPack().GetMsgId())
 
 	switch data.GetMsgId() {
 	case utils.OauthAccount:
 		kafka := o.IManage.Message().Kafka()
 		acc := &pd.Account{}
-		err := kafka.DataPack().GetDate().ProtoBuf(acc)
+		err := kafka.DataPack().GetData().ProtoBuf(acc)
 		if err != nil {
 			fmt.Println("err=", err)
 			return
@@ -95,7 +96,7 @@ func (o *Oauth) ResponseOauth(data utils.IDataPack) {
 				utils.OauthAccountSuccess,
 				acc.UUID,
 				o.IManage.Message().Kafka().DataPack().GetServerId(),
-				o.IManage.Message().Kafka().DataPack().GetDate().Bytes()))
+				o.IManage.Message().Kafka().DataPack().GetData().Bytes()))
 	case utils.OauthAccountClose:
 
 		fmt.Println("收到请求关闭", data.GetClientId())

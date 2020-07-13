@@ -8,6 +8,7 @@ type IServer interface {
 	Stop()
 	//开启业务服务方法
 	Serve()
+	AddCustomHandle(handle IHandle)
 	//路由功能：给当前服务注册一个通信协议，供客户端链接处理使用
 	AddHandle(id uint32, handle IHandle)
 	//得到链接管理

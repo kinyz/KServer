@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package pd;
+
+// 通信包
+message Message{
+  uint32 Id = 1;
+  uint32 MsgId = 2;//客户端ID
+  string ServerId = 3;//服务器ID
+  string ClientId = 4;
+  bytes  Data = 5;//数据包
+
+}

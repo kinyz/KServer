@@ -108,7 +108,7 @@ func (u *User) AccountLogin(ctx iris.Context) {
 		return
 	}
 	u.Account.Token = u.Encrypt.NewToken()
-	_ = coll.Update(bson.M{"account": u.Account.Account, "PassWord": u.Account.PassWord}, &u.Account)
+	_ = coll.UpData(bson.M{"account": u.Account.Account, "PassWord": u.Account.PassWord}, &u.Account)
 	_, err = u.Manage.DB().Redis().GetMasterConn().Set(utils.ClientLoginInfoKey + u.Account.UUID).ProtoBuf(u.Account)
 	if err != nil {
 		fmt.Println("err2=", err)

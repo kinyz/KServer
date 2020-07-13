@@ -134,6 +134,11 @@ func (s *Server) Serve() {
 	//select {}
 }
 
+//路由功能：给当前服务注册一个自定义头 找不到id时调用，供客户端链接处理使用
+func (s *Server) AddCustomHandle(handle iwebsocket.IHandle) {
+	s.msgHandler.AddCustomHandle(handle)
+}
+
 //路由功能：给当前服务注册一个路由业务方法，供客户端链接处理使用
 func (s *Server) AddHandle(id uint32, handle iwebsocket.IHandle) {
 	s.msgHandler.AddHandle(id, handle)

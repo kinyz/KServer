@@ -24,6 +24,10 @@ type ManageConfig struct {
 		Client bool
 		Server bool
 	}
+	WebSocket struct {
+		Client bool
+		Server bool
+	}
 	// 是否开启client管理
 }
 

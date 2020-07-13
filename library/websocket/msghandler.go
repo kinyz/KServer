@@ -11,6 +11,7 @@ type MsgHandle struct {
 	Handle         map[uint32]iwebsocket.IHandle //存放每个Id 所对应的处理方法的map属性
 	WorkerPoolSize uint32                        //业务工作Worker池的数量
 	TaskQueue      []chan iwebsocket.IRequest    //Worker负责取任务的消息队列
+	CustomHandle   iwebsocket.IHandle
 	//Response map[uint32]ziface.IResponse
 }
 
@@ -38,12 +39,18 @@ func (mh *MsgHandle) SendMsgToTaskQueue(request iwebsocket.IRequest) {
 
 //马上以非阻塞方式处理消息
 func (mh *MsgHandle) DoMsgHandler(request iwebsocket.IRequest) {
-	handler, ok := mh.Handle[request.GetId()]
+	handler, ok := mh.Handle[request.GetMessage().GetId()]
 	if !ok {
-		fmt.Println("Agreement Id = ", request.GetId(), " is not FOUND!")
-		//消息id错误 直接关闭
-		_ = request.GetConnection().SendMsg([]byte("id error，close now"))
-		//	request.GetConnection().Stop()
+		//如果没有id的请求将会执行自定义协议头
+		if mh.CustomHandle != nil {
+			fmt.Println("执行自定义头")
+			mh.CustomHandle.PreHandle(request)
+			mh.CustomHandle.PostHandle(request)
+			return
+		}
+
+		request.GetConnection().SendBuffMsg([]byte("无服务"))
+		request.GetConnection().Stop()
 		return
 	}
 
@@ -51,6 +58,14 @@ func (mh *MsgHandle) DoMsgHandler(request iwebsocket.IRequest) {
 	handler.PreHandle(request)
 	//handler.RunMsg(request.GetMsgID())
 	handler.PostHandle(request)
+}
+
+//添加一个自定义协议头 如果没有id的请求将会执行
+func (mh *MsgHandle) AddCustomHandle(handle iwebsocket.IHandle) {
+
+	mh.CustomHandle = handle
+	fmt.Println("Socket Add CustomHandle ")
+
 }
 
 //添加一个协议头

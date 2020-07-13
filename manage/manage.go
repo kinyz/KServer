@@ -7,6 +7,7 @@ import (
 	"KServer/manage/discover"
 	"KServer/manage/pack"
 	"KServer/manage/pack/socket"
+	"KServer/manage/pack/websocket"
 )
 
 type IManage interface {
@@ -20,27 +21,31 @@ type IManage interface {
 	Tool() pack.IToolPack
 	// Socket
 	Socket() socket.ISocketPack
+	// WebSocket
+	WebSocket() websocket.IWebSocketPack
 	// 服务管理器
 	Discover() discover.IDiscover
 }
 type Manage struct {
-	IServer    iserver.IServer
-	IMessage   pack.IMessage
-	Db         pack.IDb
-	conf       *config.ManageConfig
-	IToolPack  pack.IToolPack
-	SocketPack socket.ISocketPack
-	IDiscover  discover.IDiscover
+	IServer       iserver.IServer
+	IMessage      pack.IMessage
+	Db            pack.IDb
+	conf          *config.ManageConfig
+	IToolPack     pack.IToolPack
+	SocketPack    socket.ISocketPack
+	WebSocketPack websocket.IWebSocketPack
+	IDiscover     discover.IDiscover
 }
 
 func NewManage(config *config.ManageConfig) IManage {
 	return &Manage{
-		IServer:    server.NewIServer(config.Server.Head),
-		IMessage:   pack.NewIMessagePack(config),
-		Db:         pack.NewIDbPack(config),
-		IToolPack:  pack.NewIToolPack(),
-		SocketPack: socket.NewSocketPack(config),
-		IDiscover:  discover.NewDiscover(),
+		IServer:       server.NewIServer(config.Server.Head),
+		IMessage:      pack.NewIMessagePack(config),
+		Db:            pack.NewIDbPack(config),
+		IToolPack:     pack.NewIToolPack(),
+		SocketPack:    socket.NewSocketPack(config),
+		IDiscover:     discover.NewDiscover(),
+		WebSocketPack: websocket.NewWebSocketPack(config),
 	}
 }
 
@@ -67,6 +72,11 @@ func (m *Manage) Tool() pack.IToolPack {
 // Socket
 func (m *Manage) Socket() socket.ISocketPack {
 	return m.SocketPack
+}
+
+// Socket
+func (m *Manage) WebSocket() websocket.IWebSocketPack {
+	return m.WebSocketPack
 }
 
 // 服务管理器

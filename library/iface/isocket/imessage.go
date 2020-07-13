@@ -1,15 +1,28 @@
 package isocket
 
+import "KServer/proto"
+
 /*
 	将请求的一个消息封装到message中，定义抽象层接口
 */
 type IMessage interface {
-	GetDataLen() uint32 //获取消息数据段长度
-	GetMsgId() uint32   //获取消息ID
-	GetData() []byte    //获取消息内容
-	GetId() uint32      // 获取协议id
-	SetMsgId(uint32)    //设计消息ID
-	SetData([]byte)     //设计消息内容
-	SetDataLen(uint32)  //设置消息数据段长度
-	SetId(msgId uint32)
+	// 获取id
+	GetId() uint32
+
+	//获取msgid
+	GetMsgId() uint32
+
+	//获取客户端id
+	GetClientId() string
+
+	//获取服务器id
+	GetServerId() string
+	// 获取data
+	GetData() []byte
+	//设置data
+	SetData(data []byte)
+	//获取取数据包长度
+	GetDataLen() uint32
+
+	SetMessage(message *proto.Message)
 }

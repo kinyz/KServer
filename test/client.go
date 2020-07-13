@@ -3,6 +3,7 @@ package main
 import (
 	"KServer/library/socket"
 	tool2 "KServer/library/utils"
+	proto2 "KServer/proto"
 	"KServer/server/utils"
 	pb "KServer/server/utils/pd"
 	"fmt"
@@ -31,7 +32,7 @@ func ClientTest(i uint32) {
 		fmt.Println("client start err, exit!")
 		return
 	}
-	imsg := utils.NewIDataPack()
+	//imsg := utils.NewIDataPack()
 	user := &pb.Account{
 		UUID:    "cab02938-4a6a-4e50-b393-94da981e6660",
 		Account: "123",
@@ -44,8 +45,9 @@ func ClientTest(i uint32) {
 
 	v := pd.Encode(user)
 
-	msg, _ := dp.Pack(socket.NewMsgPackage(50, utils.OauthAccount, imsg.Pack(utils.OauthId, utils.OauthAccount, user.UUID, "", v)))
-	//fmt.Println(msg)
+	data := proto2.NewIMessage(utils.OauthId, utils.OauthAccount, "cab02938-4a6a-4e50-b393-94da981e6660", "", v)
+	msg, _ := dp.Pack(data)
+	//fmt.Println(string(v))
 	//for i := 0; i < 5; i++ {
 	_, err = conn.Write(msg)
 
@@ -57,39 +59,35 @@ func ClientTest(i uint32) {
 
 	for {
 
-		//先读出流中的head部分
+		//读取客户端的Msg head
 		headData := make([]byte, dp.GetHeadLen())
-		_, err := io.ReadFull(conn, headData)
+		//m:=proto.NewMsgNull()
+		//c.Protobuf.Decode()
+		if _, err := io.ReadFull(conn, headData); err != nil {
+			fmt.Println("read msg head error ", err)
+			break
+		}
+		msg, err := dp.Unpack(headData)
 		if err != nil {
-			fmt.Println("client read head err: ", err)
-			return
+			fmt.Println("unpack error ", err)
+			break
 		}
 
-		// 将headData字节流 拆包到msg中
-		msgHead, err := dp.Unpack(headData)
-		if err != nil {
-			fmt.Println("client unpack head err: ", err)
-			return
-		}
-
-		if msgHead.GetDataLen() > 0 {
-			//msg 是有data数据的，需要再次读取data数据
-			msg := msgHead.(*socket.Message)
-			msg.Data = make([]byte, msg.GetDataLen())
-
-			//根据dataLen从io中读取字节流
-			_, err := io.ReadFull(conn, msg.Data)
-			if err != nil {
-				fmt.Println("client unpack data err")
-				return
+		var data []byte
+		if msg.GetDataLen() > 0 {
+			data = make([]byte, msg.GetDataLen())
+			if _, err := io.ReadFull(conn, data); err != nil {
+				fmt.Println("read msg data error ", err)
+				break
 			}
-			//if imsg.UnPack(msg.Data) == nil {
-
-			fmt.Println(msg.Data)
-
-			fmt.Printf("==> Client receive Msg: Id = %d, msgid = %d , data = %s\n", msg.Id, msg.MsgId, msg.Data)
 		}
+		mess := &proto2.Message{}
+		pd.Decode(data, mess)
+		msg.SetMessage(mess)
 
-		time.Sleep(time.Second)
+		fmt.Println(mess)
+		fmt.Printf("==> Client receive Msg: Id = %d, msgid = %d , data = %s\n", msg.GetId(), msg.GetMsgId(), msg.GetData())
 	}
+
+	time.Sleep(time.Second)
 }

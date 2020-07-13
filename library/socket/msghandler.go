@@ -39,9 +39,9 @@ func (mh *MsgHandle) SendMsgToTaskQueue(request isocket.IRequest) {
 
 //马上以非阻塞方式处理消息
 func (mh *MsgHandle) DoMsgHandler(request isocket.IRequest) {
-	handler, ok := mh.Handle[request.GetID()]
+	handler, ok := mh.Handle[request.GetMessage().GetId()]
 	if !ok {
-		//fmt.Println("Agreement Id = ", request.GetID(), " is not FOUND!")
+		//fmt.Println("Agreement Id = ", request.GetId(), " is not FOUND!")
 
 		//如果没有id的请求将会执行自定义协议头
 		if mh.CustomHandle != nil {
@@ -51,7 +51,7 @@ func (mh *MsgHandle) DoMsgHandler(request isocket.IRequest) {
 			return
 		}
 
-		request.GetConnection().SendBuffMsg(0, 0, []byte("无服务"))
+		request.GetConnection().SendBuffMsg([]byte("无服务"))
 		request.GetConnection().Stop()
 		return
 	}

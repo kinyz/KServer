@@ -50,7 +50,7 @@ func main() {
 	m.Socket().Server().AddHandle(utils.OauthId, connect) //添加开始连接路由
 
 	// 注册一个自定义头 用于转发非注册msg 配合服务发现
-	CustomHandle := services.NewCustomHandle(m)
+	CustomHandle := services.NewSocketDiscovery(m)
 	m.Socket().Server().AddCustomHandle(CustomHandle)
 
 	// 添加监听路由

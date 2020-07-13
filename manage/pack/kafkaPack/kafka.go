@@ -6,12 +6,13 @@ import (
 	"KServer/library/kafka"
 	utils2 "KServer/library/utils"
 	"KServer/manage/discover/pd"
+	"KServer/proto"
 	"KServer/server/utils"
 )
 
 type IKafkaPack interface {
-	DataPack() utils.IDataPack
-	AddRouter(topic string, id uint32, response func(data utils.IDataPack))
+	DataPack() proto.IDataPack
+	AddRouter(topic string, id uint32, response func(data proto.IDataPack))
 	Send() ikafka.ISend
 	ResponseHandle(req ikafka.IResponse)
 	StartListen(addr []string, group string, offset int64) func()
@@ -31,8 +32,8 @@ type IKafkaPack interface {
 
 type KafkaPack struct {
 	IKafka    ikafka.IKafka
-	topic     map[string]map[uint32]func(data utils.IDataPack)
-	IDataPack utils.IDataPack
+	topic     map[string]map[uint32]func(data proto.IDataPack)
+	IDataPack proto.IDataPack
 	p         iutils.IProtobuf
 }
 
@@ -41,15 +42,15 @@ func NewKafkaPack() IKafkaPack {
 	//map2 := map1["error"][0]
 	return &KafkaPack{
 		IKafka:    kafka.NewIKafka(),
-		topic:     make(map[string]map[uint32]func(data utils.IDataPack)),
-		IDataPack: utils.NewIDataPack(),
+		topic:     make(map[string]map[uint32]func(data proto.IDataPack)),
+		IDataPack: proto.NewIDataPack(),
 		p:         utils2.NewIProtobuf(),
 	}
 }
-func (m *KafkaPack) AddRouter(topic string, id uint32, response func(data utils.IDataPack)) {
+func (m *KafkaPack) AddRouter(topic string, id uint32, response func(data proto.IDataPack)) {
 
 	if m.topic[topic] == nil {
-		m.topic[topic] = make(map[uint32]func(data utils.IDataPack))
+		m.topic[topic] = make(map[uint32]func(data proto.IDataPack))
 	}
 	m.topic[topic][id] = response
 	m.IKafka.Router().AddRouter(topic, m)
@@ -67,7 +68,7 @@ func (m *KafkaPack) ResponseHandle(req ikafka.IResponse) {
 	}
 }
 
-func (m *KafkaPack) DataPack() utils.IDataPack {
+func (m *KafkaPack) DataPack() proto.IDataPack {
 	return m.IDataPack
 }
 

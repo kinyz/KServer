@@ -1,14 +1,13 @@
 package websocket
 
 import (
-	"bytes"
-	"encoding/binary"
+	"KServer/library/iface/iutils"
+	"KServer/library/iface/iwebsocket"
+	utils2 "KServer/library/utils"
+	"KServer/library/websocket/utils"
+	proto2 "KServer/proto"
 	"errors"
 	"fmt"
-	"io"
-
-	"KServer/library/iface/iwebsocket"
-	"KServer/library/websocket/utils"
 	"github.com/gorilla/websocket"
 	"net"
 	"sync"
@@ -39,6 +38,8 @@ type Connection struct {
 
 	//消息类型 TextMessage 或 BinaryMessage之类
 	MessageType int `json:"messageType"`
+
+	proto iutils.IProtobuf
 }
 
 //创建连接的方法
@@ -55,7 +56,7 @@ func NewConntion(server iwebsocket.IServer, conn *websocket.Conn, connID uint32,
 		msgBuffChan:  make(chan []byte, utils.GlobalObject.MaxMsgChanLen),
 		property:     make(map[string]interface{}),
 		MessageType:  websocket.BinaryMessage, //默认文本协议
-
+		proto:        utils2.NewIProtobuf(),
 	}
 
 	//将新创建的Conn添加到链接管理中
@@ -124,32 +125,17 @@ func (c *Connection) StartReader() {
 			return
 		}
 
+		//fmt.Println(string(data))
 		c.MessageType = messageType //以客户端的类型为准
-
-		headData := make([]byte, c.GetHeadLen())
-
-		fmt.Println("data=", string(data))
-		dataBuff := bytes.NewReader(headData)
-		_, err = io.ReadAtLeast(dataBuff, data, 4)
-		if err != nil {
-			fmt.Println("read head error")
-			return
-		}
-		fmt.Println("id=", string(headData))
-
-		fmt.Println("headData=", string(headData))
-
-		var id uint32
-		if err := binary.Read(dataBuff, binary.LittleEndian, id); err != nil {
-			//return
-		}
-
+		msg := &proto2.Message{}
+		_ = c.proto.Decode(data, msg)
+		message := NewWebSocketMsgPack(msg)
+		message.SetRawData(data)
 		//得到当前客户端请求的Request数据
 
 		req := Request{
-			id:   id,
-			conn: c,
-			data: data,
+			conn:    c,
+			message: message,
 		}
 
 		if utils.GlobalObject.WorkerPoolSize > 0 {

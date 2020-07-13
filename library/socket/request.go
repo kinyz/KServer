@@ -15,16 +15,6 @@ func (r *Request) GetConnection() isocket.IConnection {
 }
 
 //获取请求消息的数据
-func (r *Request) GetData() []byte {
-	return r.msg.GetData()
-}
-
-//获取请求的协议ID
-func (r *Request) GetID() uint32 {
-	return r.msg.GetId()
-}
-
-//获取请求的消息的ID
-func (r *Request) GetMsgID() uint32 {
-	return r.msg.GetMsgId()
+func (r *Request) GetMessage() isocket.IMessage {
+	return r.msg
 }

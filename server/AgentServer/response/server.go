@@ -2,7 +2,7 @@ package response
 
 import (
 	"KServer/manage"
-	"KServer/server/utils"
+	"KServer/proto"
 )
 
 type ServerResponse struct {
@@ -13,7 +13,7 @@ func NewIServerResponse(m manage.IManage) *ServerResponse {
 	return &ServerResponse{IManage: m}
 }
 
-func (s *ServerResponse) SendAllClient(data utils.IDataPack) {
+func (s *ServerResponse) SendAllClient(data proto.IDataPack) {
 
-	s.IManage.Socket().Client().SendAll(data.GetId(), data.GetMsgId(), data.GetDate().Bytes())
+	s.IManage.Socket().Client().SendAll(data.GetData().Bytes())
 }

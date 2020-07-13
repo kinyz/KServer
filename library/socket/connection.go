@@ -2,7 +2,10 @@ package socket
 
 import (
 	"KServer/library/iface/isocket"
+	"KServer/library/iface/iutils"
 	"KServer/library/socket/utils"
+	utils2 "KServer/library/utils"
+	"KServer/proto"
 	"errors"
 	"fmt"
 	"io"
@@ -32,6 +35,10 @@ type Connection struct {
 	property map[string]interface{}
 	//保护链接属性修改的锁
 	propertyLock sync.RWMutex
+
+	protobuf iutils.IProtobuf
+
+	pack isocket.IDataPack
 }
 
 //创建连接的方法
@@ -47,6 +54,8 @@ func NewConntion(server isocket.IServer, conn *net.TCPConn, connID uint32, msgHa
 		msgChan:      make(chan []byte),
 		msgBuffChan:  make(chan []byte, utils.GlobalObject.MaxMsgChanLen),
 		property:     make(map[string]interface{}),
+		protobuf:     utils2.NewIProtobuf(),
+		pack:         NewDataPack(),
 	}
 
 	//将新创建的Conn添加到链接管理中
@@ -113,10 +122,10 @@ func (c *Connection) StartReader() {
 			break
 		}
 
-		//fmt.Printf("read headData %+v\n", headData)
+		fmt.Println("data ", headData)
 
-		//拆包，得到msgid 和 datalen 放在msg中
 		msg, err := dp.Unpack(headData)
+		//fmt.Println(msg())
 		if err != nil {
 			fmt.Println("unpack error ", err)
 			break
@@ -131,7 +140,13 @@ func (c *Connection) StartReader() {
 				break
 			}
 		}
-		msg.SetData(data)
+		mess := &proto.Message{}
+		c.protobuf.Decode(data, mess)
+		msg.SetMessage(mess)
+
+		//message:=NewSocketMsgPack(msg)
+		//message.SetRawData(data)
+		//	msg.SetData(data)
 		//得到当前客户端请求的Request数据
 
 		req := Request{
@@ -200,15 +215,15 @@ func (c *Connection) RemoteAddr() net.Addr {
 }
 
 //直接将Message数据发送数据给远程的TCP客户端
-func (c *Connection) SendMsg(id uint32, msgId uint32, data []byte) error {
+func (c *Connection) SendMsg(data []byte) error {
 	if c.isClosed == true {
 		return errors.New("connection closed when send msg")
 	}
 	//将data封包，并且发送
-	dp := NewDataPack()
-	msg, err := dp.Pack(NewMsgPackage(id, msgId, data))
+
+	msg, err := c.pack.Pack(data)
 	if err != nil {
-		fmt.Println("Pack error msg id = ", msgId)
+		//fmt.Println("Pack error msg id = ", msg)
 		return errors.New("Pack error msg ")
 	}
 
@@ -218,15 +233,15 @@ func (c *Connection) SendMsg(id uint32, msgId uint32, data []byte) error {
 	return nil
 }
 
-func (c *Connection) SendBuffMsg(id uint32, msgId uint32, data []byte) error {
+func (c *Connection) SendBuffMsg(data []byte) error {
 	if c.isClosed == true {
 		return errors.New("Connection closed when send buff msg")
 	}
 	//将data封包，并且发送
-	dp := NewDataPack()
-	msg, err := dp.Pack(NewMsgPackage(id, msgId, data))
+
+	msg, err := c.pack.Pack(data)
 	if err != nil {
-		fmt.Println("Pack error msg id = ", msgId)
+		//	fmt.Println("Pack error msg id = ", msgId)
 		return errors.New("Pack error msg ")
 	}
 

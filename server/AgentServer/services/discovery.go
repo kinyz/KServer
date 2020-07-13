@@ -4,45 +4,46 @@ import (
 	"KServer/library/iface/isocket"
 	"KServer/manage"
 	"KServer/manage/discover/pd"
+	"KServer/proto"
 	"KServer/server/utils"
 	"fmt"
 )
 
-type Discovery struct {
+type SocketDiscovery struct {
 	IManage manage.IManage
 }
 
-func NewCustomHandle(m manage.IManage) *Discovery {
-	return &Discovery{IManage: m}
+func NewSocketDiscovery(m manage.IManage) *SocketDiscovery {
+	return &SocketDiscovery{IManage: m}
 }
 
-func (c *Discovery) PreHandle(request isocket.IRequest) {
-	if !c.IManage.Discover().CheckService(request.GetID()) {
+func (c *SocketDiscovery) PreHandle(request isocket.IRequest) {
+	if !c.IManage.Discover().CheckService(request.GetMessage().GetId()) {
 		// 判断id是否存在
 		request.GetConnection().Stop()
 		return
 	}
 
-	data := c.IManage.Message().Kafka().DataPack().Pack(request.GetID(), request.GetMsgID(),
+	data := c.IManage.Message().Kafka().DataPack().Pack(request.GetMessage().GetId(), request.GetMessage().GetMsgId(),
 		c.IManage.Socket().Client().GetIdByConnId(request.GetConnection().GetConnID()),
-		c.IManage.Server().GetId(), request.GetData())
+		c.IManage.Server().GetId(), request.GetMessage().GetData())
 
 	_, _, err := c.IManage.Message().Kafka().Send().Sync(
-		c.IManage.Discover().GetTopic(request.GetID()),
+		c.IManage.Discover().GetTopic(request.GetMessage().GetId()),
 		c.IManage.Server().GetId(), data)
 	if err != nil {
-		fmt.Println(request.GetID(), request.GetMsgID(), "转发失败")
+		fmt.Println(request.GetMessage().GetId(), request.GetMessage().GetMsgId(), "转发失败")
 	}
 	fmt.Println("CustomHandle")
 }
 
-func (c *Discovery) PostHandle(request isocket.IRequest) {
+func (c *SocketDiscovery) PostHandle(request isocket.IRequest) {
 
 	//fmt.Println("CustomHandle2")
 }
 
 // 用于服务中心注册服务
-func (c *Discovery) DiscoverHandle(data utils.IDataPack) {
+func (c *SocketDiscovery) DiscoverHandle(data proto.IDataPack) {
 	switch data.GetMsgId() {
 	case utils.ServiceDiscoveryRegister:
 		{
@@ -54,11 +55,11 @@ func (c *Discovery) DiscoverHandle(data utils.IDataPack) {
 }
 
 // 用于服务中心注册服务
-func (c *Discovery) ResponseAddService(data utils.IDataPack) {
+func (c *SocketDiscovery) ResponseAddService(data proto.IDataPack) {
 
 	//fmt.Println("服务发现添加服务")
 	d := &pd.Discovery{}
-	err := data.GetDate().ProtoBuf(d)
+	err := data.GetData().ProtoBuf(d)
 	if err != nil {
 		fmt.Println("服务发现解析失败")
 		return
@@ -70,9 +71,9 @@ func (c *Discovery) ResponseAddService(data utils.IDataPack) {
 }
 
 // 用于服务中心删除服务
-func (c *Discovery) ResponseDelService(data utils.IDataPack) {
+func (c *SocketDiscovery) ResponseDelService(data proto.IDataPack) {
 	d := &pd.Discovery{}
-	err := data.GetDate().ProtoBuf(d)
+	err := data.GetData().ProtoBuf(d)
 	//fmt.Println("服务发现删除服务")
 	if err != nil {
 		fmt.Println("服务发现解析失败")

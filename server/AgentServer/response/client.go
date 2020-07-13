@@ -2,7 +2,7 @@ package response
 
 import (
 	"KServer/manage"
-	"KServer/server/utils"
+	"KServer/proto"
 	"fmt"
 )
 
@@ -15,12 +15,12 @@ func NewClientResponse(m manage.IManage) *ClientResponse {
 }
 
 // 用于接收客户端主题
-func (c *ClientResponse) ResponseClient(data utils.IDataPack) {
+func (c *ClientResponse) ResponseClient(data proto.IDataPack) {
 
 	fmt.Println("收到客户端信息", data.GetClientId())
 	client := c.IManage.Socket().Client().GetClient(data.GetClientId())
 	if client != nil {
-		client.Send(data.GetId(), data.GetMsgId(), data.GetDate().Bytes())
+		client.Send(data.GetData().Bytes())
 		return
 	}
 
@@ -29,11 +29,11 @@ func (c *ClientResponse) ResponseClient(data utils.IDataPack) {
 }
 
 // 用于接收客户端主题
-func (c *ClientResponse) ResponseRemoveClient(data utils.IDataPack) {
+func (c *ClientResponse) ResponseRemoveClient(data proto.IDataPack) {
 
 	client := c.IManage.Socket().Client().GetClient(data.GetClientId())
 	if client != nil {
-		client.SendBuff(data.GetId(), data.GetMsgId(), data.GetDate().Bytes())
+		client.SendBuff(data.GetData().Bytes())
 		client.Stop()
 		return
 	}

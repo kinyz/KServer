@@ -36,7 +36,8 @@ type handelo struct {
 }
 
 func (h *handelo) PreHandle(request iwebsocket.IRequest) {
-	fmt.Println("PreHandle")
+
+	fmt.Println("PreHandle", string(request.GetMessage().GetRawData()))
 
 }
 

@@ -2,7 +2,7 @@ package response
 
 import (
 	"KServer/manage"
-	"KServer/server/utils"
+	"KServer/proto"
 	"fmt"
 )
 
@@ -14,24 +14,24 @@ func NewAllServerResponse(m manage.IManage) *AllServerResponse {
 	return &AllServerResponse{IManage: m}
 }
 
-func (s *AllServerResponse) ResponseAllServer(data utils.IDataPack) {
+func (s *AllServerResponse) ResponseAllServer(data proto.IDataPack) {
 	//s.IManage.Message().DataPack().UnPack(req.GetData().Bytes())
 
-	fmt.Println("服务器全体收到消息", s.IManage.Message().Kafka().DataPack().GetDate().String())
+	fmt.Println("服务器全体收到消息", s.IManage.Message().Kafka().DataPack().GetData().String())
 
 	//switch s.IManage.DataPack().GetMsgId() {
 
 }
 
 // 移除客户端
-func (s *AllServerResponse) RemoveClient(data utils.IDataPack) {
+func (s *AllServerResponse) RemoveClient(data proto.IDataPack) {
 	c := s.IManage.Socket().Client().GetClient(data.GetClientId())
 	if c == nil {
 		fmt.Println("客户端不在此服务器")
 		return
 	}
 
-	err := c.Send(data.GetId(), data.GetMsgId(), data.GetDate().Bytes())
+	err := c.Send(data.GetData().Bytes())
 	if err != nil {
 		fmt.Println("客户端回调消息失败")
 	}

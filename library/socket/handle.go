@@ -28,7 +28,7 @@ func NewIAgreement(id uint32, handle isocket.IHandle) *Handle {
 
 func (a *Handle) PreHandle(req isocket.IRequest) {
 
-	handle, ok := a.Handle[req.GetID()]
+	handle, ok := a.Handle[req.GetMessage().GetId()]
 	if ok {
 		handle.PreHandle(req)
 		return
@@ -39,7 +39,7 @@ func (a *Handle) PreHandle(req isocket.IRequest) {
 }
 
 func (a *Handle) PostHandle(req isocket.IRequest) {
-	handle, ok := a.Handle[req.GetID()]
+	handle, ok := a.Handle[req.GetMessage().GetId()]
 	if ok {
 		handle.PostHandle(req)
 		return

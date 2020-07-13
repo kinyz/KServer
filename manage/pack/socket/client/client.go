@@ -2,7 +2,8 @@ package client
 
 import (
 	"KServer/library/iface/isocket"
-	"KServer/manage/client"
+	socket2 "KServer/manage/socket"
+
 	"KServer/manage/config"
 	"fmt"
 	"time"
@@ -11,31 +12,31 @@ import (
 type IClientPack interface {
 	AddClient(uuid string, token string, conn isocket.IConnection)
 	Remove(id uint32)
-	GetClient(uuid string) client.IClient
+	GetClient(uuid string) socket2.IClient
 	GetState(uuid string) bool
 	GetOnlineNum() int
 	GetIdByConnId(id uint32) string
-	SendAll(id uint32, msgId uint32, data []byte)
+	SendAll(data []byte)
 	SetClose(uuid string, fun func())
 }
 
 type ClientPack struct {
 	ConnId map[uint32]string
-	Client map[string]client.IClient
+	Client map[string]socket2.IClient
 	config *config.ManageConfig
 	close  map[string]func()
 }
 
 func NewIClientPack() IClientPack {
 	return &ClientPack{
-		Client: make(map[string]client.IClient),
+		Client: make(map[string]socket2.IClient),
 		ConnId: make(map[uint32]string),
 		close:  make(map[string]func()),
 	}
 
 }
 func (cp *ClientPack) AddClient(uuid string, token string, conn isocket.IConnection) {
-	c := client.NewClient(conn, token)
+	c := socket2.NewClient(conn, token)
 	cp.Client[uuid] = c
 	cp.ConnId[conn.GetConnID()] = uuid
 }
@@ -47,7 +48,7 @@ func (cp *ClientPack) Remove(id uint32) {
 
 }
 
-func (cp *ClientPack) GetClient(uuid string) client.IClient {
+func (cp *ClientPack) GetClient(uuid string) socket2.IClient {
 	if cp.GetState(uuid) {
 		return cp.Client[uuid]
 	}
@@ -66,11 +67,11 @@ func (cp *ClientPack) GetOnlineNum() int {
 }
 
 // 通知全部客户端
-func (cp *ClientPack) SendAll(id uint32, msgId uint32, data []byte) {
+func (cp *ClientPack) SendAll(data []byte) {
 
 	for _, uuid := range cp.Client {
 		if cp.GetState(cp.GetIdByConnId(uuid.GetConnId())) {
-			err := uuid.SendBuff(id, msgId, data)
+			err := uuid.SendBuff(data)
 			if err != nil {
 				fmt.Println("全局消息发送失败", uuid)
 			}

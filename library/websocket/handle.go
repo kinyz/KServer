@@ -27,7 +27,7 @@ func NewIAgreement(id uint32, handle iwebsocket.IHandle) *Handle {
 
 func (a *Handle) PreHandle(req iwebsocket.IRequest) {
 
-	handle, ok := a.Handle[req.GetId()]
+	handle, ok := a.Handle[req.GetMessage().GetId()]
 	if ok {
 		handle.PreHandle(req)
 		return
@@ -38,7 +38,7 @@ func (a *Handle) PreHandle(req iwebsocket.IRequest) {
 }
 
 func (a *Handle) PostHandle(req iwebsocket.IRequest) {
-	handle, ok := a.Handle[req.GetId()]
+	handle, ok := a.Handle[req.GetMessage().GetId()]
 	if ok {
 		handle.PostHandle(req)
 		return
