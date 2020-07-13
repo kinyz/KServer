@@ -5,7 +5,7 @@ import (
 	"KServer/manage"
 	"KServer/manage/discover/pd"
 	"KServer/proto"
-	"KServer/server/utils"
+	"KServer/server/utils/msg"
 	"fmt"
 )
 
@@ -44,12 +44,14 @@ func (c *SocketDiscovery) PostHandle(request isocket.IRequest) {
 
 // 用于服务中心注册服务
 func (c *SocketDiscovery) DiscoverHandle(data proto.IDataPack) {
+
+	fmt.Println("收到服务变化", data.GetMsgId())
 	switch data.GetMsgId() {
-	case utils.ServiceDiscoveryRegister:
+	case msg.ServiceDiscoveryRegister:
 		{
 			c.ResponseAddService(data)
 		}
-	case utils.ServiceDiscoveryCloseService:
+	case msg.ServiceDiscoveryCloseService:
 		c.ResponseDelService(data)
 	}
 }

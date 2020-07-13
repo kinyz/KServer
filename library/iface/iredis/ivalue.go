@@ -26,4 +26,5 @@ type IValue interface {
 	Set(key string) ISetValue
 	Do(key string, value ...interface{}) (reply interface{}, err error)
 	Check(key string) bool
+	Del(key string) (reply interface{}, err error)
 }

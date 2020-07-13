@@ -7,7 +7,7 @@ import (
 	utils2 "KServer/library/utils"
 	"KServer/manage/discover/pd"
 	"KServer/proto"
-	"KServer/server/utils"
+	"KServer/server/utils/msg"
 	"fmt"
 )
 
@@ -95,17 +95,21 @@ func (m *KafkaPack) ResponseHandle(req ikafka.IResponse) {
 	if err != nil {
 		fmt.Println("IDataPack err", err)
 	}
-	if err != nil {
-		fmt.Println("pack err", err)
-	}
 
+	//fmt.Println("response err", req.GetTopic(),m.IDataPack.GetMsgId(),m.IDataPack.GetId())
+	//fmt.Println("自定义头",req.GetTopic())
 	if m.topic[req.GetTopic()][m.IDataPack.GetId()] != nil {
+		//	fmt.Println("自定义头1",req.GetTopic())
+
 		m.topic[req.GetTopic()][m.IDataPack.GetId()](m.IDataPack)
 		return
 	}
 	if m.CustomHandle[req.GetTopic()] != nil {
+		//	fmt.Println("自定义头2",req.GetTopic())
+
 		m.CustomHandle[req.GetTopic()](m.IDataPack)
 	}
+	//fmt.Println("自定义头结束",req.GetTopic())
 }
 
 func (m *KafkaPack) StartListen(addr []string, group string, offset int64) func() {
@@ -125,9 +129,9 @@ func (m *KafkaPack) CallRegisterService(id uint32, topic string, serverId string
 		Port:     port,
 		Type:     Type,
 	}
-	b := m.IDataPack.Pack(utils.ServiceDiscoveryID, utils.ServiceDiscoveryRegister, serverId,
+	b := m.IDataPack.Pack(msg.ServiceDiscoveryID, msg.ServiceDiscoveryRegister, serverId,
 		serverId, m.p.Encode(data))
-	m.IKafka.Send().Async(utils.ServiceDiscoveryTopic, serverId, b)
+	m.IKafka.Send().Async(msg.ServiceDiscoveryTopic, serverId, b)
 }
 
 // 向服务中心注销一个服务
@@ -140,45 +144,45 @@ func (m *KafkaPack) CallLogoutService(id uint32, Topic string, serverId string) 
 		Port:     "",
 		Type:     "",
 	}
-	b := m.IDataPack.Pack(utils.ServiceDiscoveryID, utils.ServiceDiscoveryLogoutService, serverId,
+	b := m.IDataPack.Pack(msg.ServiceDiscoveryID, msg.ServiceDiscoveryLogoutService, serverId,
 		serverId, m.p.Encode(data))
-	m.IKafka.Send().Async(utils.ServiceDiscoveryTopic, serverId, b)
+	m.IKafka.Send().Async(msg.ServiceDiscoveryTopic, serverId, b)
 }
 
 // 向服务中心关闭一个主线程服务
 func (m *KafkaPack) CallCloseServiceState(id uint32) {
 	data := &pd.Discovery{
 		Id:       id,
-		Topic:    utils.ServiceDiscoveryTopic,
+		Topic:    msg.ServiceDiscoveryTopic,
 		ServerId: "",
 		Host:     "",
 		Port:     "",
 		Type:     "kafka",
 	}
-	b := m.IDataPack.Pack(utils.ServiceDiscoveryID, utils.ServiceDiscoveryCloseService, "",
+	b := m.IDataPack.Pack(msg.ServiceDiscoveryID, msg.ServiceDiscoveryCloseService, "",
 		"", m.p.Encode(data))
-	m.IKafka.Send().Async(utils.ServiceDiscoveryTopic, "", b)
+	m.IKafka.Send().Async(msg.ServiceDiscoveryTopic, "", b)
 }
 
-// 向服务中心关闭一个主线程服务
+// 向服务中心打开一个主线程服务
 func (m *KafkaPack) CallOpenServiceState(id uint32) {
 	data := &pd.Discovery{
 		Id:       id,
-		Topic:    utils.ServiceDiscoveryTopic,
+		Topic:    msg.ServiceDiscoveryTopic,
 		ServerId: "",
 		Host:     "",
 		Port:     "",
 		Type:     "kafka",
 	}
-	b := m.IDataPack.Pack(utils.ServiceDiscoveryID, utils.ServiceDiscoveryLogoutService, "",
+	b := m.IDataPack.Pack(msg.ServiceDiscoveryID, msg.ServiceDiscoveryOpenService, "",
 		"", m.p.Encode(data))
-	m.IKafka.Send().Async(utils.ServiceDiscoveryTopic, "", b)
+	m.IKafka.Send().Async(msg.ServiceDiscoveryTopic, "", b)
 }
 
 // 向服务中心关闭一个主线程服务
 func (m *KafkaPack) CallCheckAllService(serverId string) {
 
-	b := m.IDataPack.Pack(utils.ServiceDiscoveryID, utils.ServiceDiscoveryCheckAllService, "",
+	b := m.IDataPack.Pack(msg.ServiceDiscoveryID, msg.ServiceDiscoveryCheckAllService, "",
 		serverId, []byte("check all service"))
-	m.IKafka.Send().Async(utils.ServiceDiscoveryTopic, "", b)
+	m.IKafka.Send().Async(msg.ServiceDiscoveryTopic, "", b)
 }

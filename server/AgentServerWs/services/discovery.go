@@ -5,7 +5,7 @@ import (
 	"KServer/manage"
 	"KServer/manage/discover/pd"
 	"KServer/proto"
-	"KServer/server/utils"
+	"KServer/server/utils/msg"
 	"fmt"
 )
 
@@ -45,11 +45,11 @@ func (c *WebSocketDiscovery) PostHandle(request iwebsocket.IRequest) {
 // 用于服务中心注册服务
 func (c *WebSocketDiscovery) DiscoverHandle(data proto.IDataPack) {
 	switch data.GetMsgId() {
-	case utils.ServiceDiscoveryRegister:
+	case msg.ServiceDiscoveryRegister:
 		{
 			c.ResponseAddService(data)
 		}
-	case utils.ServiceDiscoveryCloseService:
+	case msg.ServiceDiscoveryCloseService:
 		c.ResponseDelService(data)
 	}
 }
@@ -74,7 +74,7 @@ func (c *WebSocketDiscovery) ResponseAddService(data proto.IDataPack) {
 func (c *WebSocketDiscovery) ResponseDelService(data proto.IDataPack) {
 	d := &pd.Discovery{}
 	err := data.GetData().ProtoBuf(d)
-	//fmt.Println("服务发现删除服务")
+	fmt.Println("服务发现删除服务")
 	if err != nil {
 		fmt.Println("服务发现解析失败")
 		return

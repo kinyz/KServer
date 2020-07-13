@@ -28,11 +28,17 @@ type ManageConfig struct {
 		Client bool
 		Server bool
 	}
+	Lock struct {
+		Open bool
+		Head string
+	}
+
 	// 是否开启client管理
 }
 
 func NewManageConfig() *ManageConfig {
 	conf := &ManageConfig{}
+
 	//conf.Socket.Server =false
 	return conf
 }

@@ -13,3 +13,8 @@ const OldOffset = -2
 const (
 	ServiceDiscoveryTable = "Discovery_"
 )
+
+const KafkaType = "kafka"
+const SocketType = "socket"
+
+const WebSocketType = "websocket"

@@ -3,6 +3,7 @@ package response
 import (
 	"KServer/manage"
 	"KServer/proto"
+	"KServer/server/utils/msg"
 	"fmt"
 )
 
@@ -17,6 +18,11 @@ func NewAllServerResponse(m manage.IManage) *AllServerResponse {
 func (s *AllServerResponse) ResponseAllServer(data proto.IDataPack) {
 	//s.IManage.Message().DataPack().UnPack(req.GetData().Bytes())
 
+	switch data.GetMsgId() {
+	case msg.AgentSendAllClient:
+		s.IManage.Socket().Client().SendAll(data.GetRawData())
+
+	}
 	fmt.Println("服务器全体收到消息", s.IManage.Message().DataPack().GetData().String())
 
 	//switch s.IManage.DataPack().GetMsgId() {

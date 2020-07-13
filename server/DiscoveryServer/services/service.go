@@ -5,6 +5,7 @@ import (
 	"KServer/manage/discover/pd"
 	"KServer/proto"
 	"KServer/server/utils"
+	"KServer/server/utils/msg"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -21,20 +22,20 @@ func NewServiceDiscovery(m manage.IManage) *Service {
 // 服务头
 func (s *Service) ServiceHandle(data proto.IDataPack) {
 	switch data.GetMsgId() {
-	case utils.ServiceDiscoveryRegister:
+	case msg.ServiceDiscoveryRegister:
 		{
 			s.RegisterService(data)
 		}
 
-	case utils.ServiceDiscoveryLogoutService:
+	case msg.ServiceDiscoveryLogoutService:
 		{
 			s.LogoutService(data)
 		}
-	case utils.ServiceDiscoveryCheckAllService:
+	case msg.ServiceDiscoveryCheckAllService:
 		{
 			s.CheckAllService(data)
 		}
-	case utils.ServiceDiscoveryCheckService:
+	case msg.ServiceDiscoveryCheckService:
 		{
 			s.CheckService(data)
 		}
@@ -46,7 +47,7 @@ func (s *Service) ServiceHandle(data proto.IDataPack) {
 // 注册服务
 func (s *Service) RegisterService(data proto.IDataPack) {
 
-	fmt.Println("收到线程1")
+	//fmt.Println("收到线程1")
 	info := &pd.Discovery{}
 	err := data.GetData().ProtoBuf(info)
 
@@ -60,15 +61,15 @@ func (s *Service) RegisterService(data proto.IDataPack) {
 	dbinfo := &pd.Discovery{}
 	err = coll.Find(bson.M{"id": info.Id}).One(&dbinfo)
 	if err != nil {
-		dbinfo.State = utils.ServiceDiscoveryState
-		info.State = utils.ServiceDiscoveryState
+		dbinfo.State = msg.ServiceDiscoveryState
+		info.State = msg.ServiceDiscoveryState
 		err = coll.Insert(info)
 		fmt.Println("添加服务: ", info.Id, info.Topic, info.ServerId)
-		s.IManage.Message().Kafka().Send().Async(utils.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), data.GetRawData())
+		s.IManage.Message().Kafka().Send().Async(msg.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), data.GetRawData())
 
 	}
 
-	if dbinfo.State != utils.ServiceDiscoveryState {
+	if dbinfo.State != msg.ServiceDiscoveryState {
 		fmt.Println(dbinfo.Id, " 服务目前处于关闭状态")
 		return
 	}
@@ -86,9 +87,7 @@ func (s *Service) RegisterService(data proto.IDataPack) {
 
 // 删除服务
 func (s *Service) LogoutService(data proto.IDataPack) {
-	fmt.Println("收到线程2")
 
-	fmt.Println("收到线程1")
 	info := &pd.Discovery{}
 	err := data.GetData().ProtoBuf(info)
 
@@ -103,15 +102,13 @@ func (s *Service) LogoutService(data proto.IDataPack) {
 	fmt.Println(dbinfo)
 	if err != nil {
 		fmt.Println(data.GetServerId(), "服务数据库删除失败，无数据")
-		return
+		//return
 	}
 	err = coll.Remove(dbinfo)
 	if err != nil {
 		fmt.Println(data.GetServerId(), "服务数据库删除失败")
-		return
+		//return
 	}
-
-	s.IManage.Message().Kafka().Send().Async(utils.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), data.GetRawData())
 
 	var allInfo []pd.Discovery
 
@@ -120,15 +117,25 @@ func (s *Service) LogoutService(data proto.IDataPack) {
 	fmt.Println("开始查询", len(allInfo))
 	if len(allInfo) == 0 {
 		fmt.Println("查询服务无数据")
+		//s.IManage.Message().Kafka().Send().Async(utils.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), data.GetRawData())
+
 		coll2 := s.IManage.DB().Mongo().GetCollection(utils.ServiceDiscoveryTable)
 		coll2.Find(bson.M{"id": dbinfo.Id}).One(dbinfo)
 		coll2.Remove(dbinfo)
+
+		fmt.Println("查询服务无数据")
+
 		dbinfo.State = 0
-		b := s.IManage.Message().Kafka().DataPack().Pack(utils.ServiceDiscoveryID, utils.ServiceDiscoveryCloseService, s.IManage.Server().GetId(),
+		b := s.IManage.Message().DataPack().Pack(msg.ServiceDiscoveryID, msg.ServiceDiscoveryCloseService, s.IManage.Server().GetId(),
 			s.IManage.Server().GetId(), s.IManage.Tool().Protobuf().Encode(dbinfo))
-		s.IManage.Message().Kafka().Send().Async(utils.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), b)
-		return
+
+		s.IManage.Message().Kafka().Send().Async(msg.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), b)
+
+		fmt.Println("查询服务无数据")
+
 	}
+	//go s.IManage.Message().Kafka().Send().Sync(utils.ServiceDiscoveryListenTopic, s.IManage.Server().GetId(), data.GetRawData())
+
 	fmt.Println("结束查询")
 
 }
@@ -158,9 +165,9 @@ func (s *Service) CheckAllService(data proto.IDataPack) {
 	fmt.Println("收到线程4", data.GetServerId())
 
 	for i := 0; i < len(dbInfo); i++ {
-		if dbInfo[i].State == utils.ServiceDiscoveryState {
+		if dbInfo[i].State == msg.ServiceDiscoveryState {
 			pushdata := s.IManage.Tool().Protobuf().Encode(&dbInfo[i])
-			b := s.IManage.Message().Kafka().DataPack().Pack(utils.ServiceDiscoveryID, utils.ServiceDiscoveryRegister, "",
+			b := s.IManage.Message().DataPack().Pack(msg.ServiceDiscoveryID, msg.ServiceDiscoveryRegister, "",
 				s.IManage.Server().GetId(), pushdata)
 			s.IManage.Message().Kafka().Send().Async(data.GetServerId(), s.IManage.Server().GetId(), b)
 			fmt.Println("循环第 ", i+1)

@@ -4,7 +4,7 @@ import (
 	"KServer/library/socket"
 	tool2 "KServer/library/utils"
 	proto2 "KServer/proto"
-	"KServer/server/utils"
+	msg2 "KServer/server/utils/msg"
 	pb "KServer/server/utils/pd"
 	"fmt"
 	"io"
@@ -34,9 +34,9 @@ func ClientTest(i uint32) {
 	}
 	//imsg := utils.NewIDataPack()
 	user := &pb.Account{
-		UUID:    "cab02938-4a6a-4e50-b393-94da981e6660",
-		Account: "123",
-		Token:   "c84e59cadf42df0361ea28ba45366758",
+		UUID:    "27c340b1-6d1b-4893-a14c-abb1f81829c4",
+		Account: "116175894",
+		Token:   "5d7df55292b89a8fcb42bcbdff64d0bd",
 		Online:  0,
 		State:   0,
 	}
@@ -45,7 +45,7 @@ func ClientTest(i uint32) {
 
 	v := pd.Encode(user)
 
-	data := proto2.NewIMessage(utils.OauthId, utils.OauthAccount, "cab02938-4a6a-4e50-b393-94da981e6660", "", v)
+	data := proto2.NewIMessage(msg2.OauthId, msg2.OauthAccount, "cab02938-4a6a-4e50-b393-94da981e6660", "", v)
 	fmt.Println(string(data))
 	msg, _ := dp.Pack(data)
 	//fmt.Println(string(v))

@@ -6,16 +6,28 @@ import (
 	"KServer/manage/config"
 	"KServer/server/LoginServer/service"
 	"KServer/server/utils"
+	"KServer/server/utils/msg"
+	"fmt"
 )
 
 func main() {
 
 	ManageConfig := config.NewManageConfig()
-	ManageConfig.Server.Head = utils.LoginTopic
+	ManageConfig.Server.Head = msg.LoginTopic
 	ManageConfig.DB.Redis = true
 	ManageConfig.DB.Mongo = true
+	ManageConfig.Lock.Open = true
+	ManageConfig.Lock.Head = msg.LockTopic
+	ManageConfig.Message.Kafka = true
 
 	m := manage.NewManage(ManageConfig)
+
+	kafkaConfig := config.NewKafkaConfig(utils.KafkaConFile)
+	err := m.Message().Kafka().Send().Open([]string{kafkaConfig.GetAddr()})
+	if err != nil {
+		fmt.Println("打开kafkaSend失败:", err)
+		return
+	}
 
 	redisConfig := config.NewRedisConfig(utils.RedisConFile)
 	m.DB().Redis().StartMasterPool(redisConfig.GetMasterAddr(), redisConfig.Master.PassWord, redisConfig.Master.MaxIdle, redisConfig.Master.MaxActive)

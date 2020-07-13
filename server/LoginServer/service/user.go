@@ -3,7 +3,7 @@ package service
 import (
 	utils2 "KServer/library/utils"
 	"KServer/manage"
-	"KServer/server/utils"
+	"KServer/server/utils/msg"
 	"KServer/server/utils/pd"
 	"fmt"
 	"github.com/kataras/iris/v12"
@@ -47,7 +47,7 @@ func (u *User) AccountRegister(ctx iris.Context) {
 		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": err.Error()})
 		return
 	}
-	key := utils.ClientLoginInfoKey + u.Account.UUID
+	key := msg.ClientLoginInfoKey + u.Account.UUID
 	_, _ = u.Manage.DB().Redis().GetMasterConn().Set(key).ProtoBuf(u.Account)
 	//_, _ = u.Redis.SetValueByProto(key, &u.Account)
 	u.Account.PassWord = "******" //  返回隐藏密码
@@ -57,6 +57,11 @@ func (u *User) AccountRegister(ctx iris.Context) {
 func (u *User) AccountLogin(ctx iris.Context) {
 	if err := ctx.ReadJSON(&u.Account); err != nil {
 		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": "系统错误"})
+		return
+	}
+
+	if !u.Manage.Lock().Lock(msg.LockAccount + u.Account.Account) {
+		fmt.Println("加锁失败")
 		return
 	}
 	if len(u.Account.Account) < 1 || len(u.Account.Account) < 1 {
@@ -103,19 +108,25 @@ func (u *User) AccountLogin(ctx iris.Context) {
 		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": "密码错误"})
 		return
 	}
-	if u.Account.Online == utils.ClientOnline {
+	if u.Account.Online == msg.ClientOnline {
 		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": "账号已在线"})
 		return
 	}
 	u.Account.Token = u.Encrypt.NewToken()
-	_ = coll.UpData(bson.M{"account": u.Account.Account, "PassWord": u.Account.PassWord}, &u.Account)
-	_, err = u.Manage.DB().Redis().GetMasterConn().Set(utils.ClientLoginInfoKey + u.Account.UUID).ProtoBuf(u.Account)
+	_ = coll.Update(bson.M{"account": u.Account.Account, "PassWord": u.Account.PassWord}, &u.Account)
+	_, err = u.Manage.DB().Redis().GetMasterConn().Set(msg.ClientLoginInfoKey + u.Account.UUID).ProtoBuf(u.Account)
 	if err != nil {
 		fmt.Println("err2=", err)
 	}
 	//_, _ = u.Redis.SetValueByProto(key, &u.Account)
 	u.Account.PassWord = "******" //  返回隐藏密码
 	fmt.Println(u.Account.UUID)
+
+	if !u.Manage.Lock().UnLock(msg.LockAccount + u.Account.Account) {
+		fmt.Println("解锁失败")
+		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": "系统错误"})
+		return
+	}
 
 	_, _ = ctx.JSON(iris.Map{"state": "success", "msg": "登陆成功", "result": u.Account})
 

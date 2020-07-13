@@ -5,13 +5,14 @@ import (
 	"KServer/manage/config"
 	"KServer/server/OauthServer/services"
 	"KServer/server/utils"
+	"KServer/server/utils/msg"
 	"time"
 )
 
 func main() {
 	conf := config.NewManageConfig()
 	conf.Message.Kafka = true
-	conf.Server.Head = utils.OauthTopic
+	conf.Server.Head = msg.OauthTopic
 	conf.DB.Redis = true
 	m := manage.NewManage(conf)
 	// 新建一个服务管理器
@@ -27,16 +28,16 @@ func main() {
 
 	oauth := services.NewOauth(m)
 
-	m.Message().Kafka().AddRouter(utils.OauthTopic, utils.OauthId, oauth.ResponseOauth)
-	m.Message().Kafka().StartListen([]string{kafkaConf.GetAddr()}, utils.OauthTopic, -1)
+	m.Message().Kafka().AddRouter(msg.OauthTopic, msg.OauthId, oauth.ResponseOauth)
+	m.Message().Kafka().StartListen([]string{kafkaConf.GetAddr()}, msg.OauthTopic, -1)
 
 	// 服务中心监听
 	//d:=generalService.NewIDiscovery(m)
-	m.Message().Kafka().CallRegisterService(utils.OauthId, utils.OauthTopic, m.Server().GetId(), m.Server().GetHost(), m.Server().GetPort(), utils.KafkaType)
+	m.Message().Kafka().CallRegisterService(msg.OauthId, msg.OauthTopic, m.Server().GetId(), m.Server().GetHost(), m.Server().GetPort(), utils.KafkaType)
 
 	m.Server().Start()
 
-	m.Message().Kafka().CallLogoutService(utils.OauthId, utils.OauthTopic, m.Server().GetId())
+	m.Message().Kafka().CallLogoutService(msg.OauthId, msg.OauthTopic, m.Server().GetId())
 	time.Sleep(5 * time.Second)
 	Close(m)
 

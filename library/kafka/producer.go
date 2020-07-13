@@ -33,7 +33,7 @@ func (p *Producer) NewSyncProducer(addr []string) error {
 }
 func (p *Producer) NewAsyncProducer(addr []string) error {
 	config := sarama.NewConfig()
-	config.Producer.Return.Successes = true
+	config.Producer.Return.Successes = false
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.Timeout = 5 * time.Second
 	config.Version = sarama.V2_3_0_0

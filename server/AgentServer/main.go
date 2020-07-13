@@ -6,6 +6,7 @@ import (
 	"KServer/server/AgentServer/response"
 	"KServer/server/AgentServer/services"
 	"KServer/server/utils"
+	"KServer/server/utils/msg"
 	"fmt"
 	"os"
 	"os/signal"
@@ -17,7 +18,7 @@ func main() {
 	mConf.Socket.Client = true
 	mConf.Socket.Server = true
 	//mConf.DB.Redis = true
-	mConf.Server.Head = utils.AgentServerTopic
+	mConf.Server.Head = msg.AgentServerTopic
 	mConf.Message.Kafka = true
 	// 新建管理器
 	m := manage.NewManage(mConf)
@@ -47,25 +48,26 @@ func main() {
 	m.Socket().Server().SetOnConnStart(connect.DoConnectionBegin)
 	m.Socket().Server().SetOnConnStop(connect.DoConnectionLost)
 	// 注册socket路由
-	m.Socket().Server().AddHandle(utils.OauthId, connect) //添加开始连接路由
+	m.Socket().Server().AddHandle(msg.OauthId, connect) //添加开始连接路由
 
 	// 注册一个自定义头 用于转发非注册msg 配合服务发现
 	CustomHandle := services.NewSocketDiscovery(m)
 	m.Socket().Server().AddCustomHandle(CustomHandle)
 
 	// 添加监听路由
-	m.Message().Kafka().AddRouter(m.Server().GetId(), utils.OauthId, connect.ResponseOauth)
-	m.Message().Kafka().AddRouter(m.Server().GetId(), utils.AgentSendAllClient, is.SendAllClient) // 通知所有客户端消息
+	m.Message().Kafka().AddRouter(m.Server().GetId(), msg.OauthId, connect.ResponseOauth)
+	m.Message().Kafka().AddRouter(m.Server().GetId(), msg.AgentSendAllClient, is.SendAllClient) // 通知所有客户端消息
 
 	// 所有服务器接受消息
 	//m.Message().Kafka().AddRouter(utils.AgentServerAllTopic, utils.AgentConnStop, alls.RemoveClient) // 通知客户端下线
-	m.Message().Kafka().AddRouter(utils.AgentServerAllTopic, utils.AgentAllServerId, alls.ResponseAllServer)
+	m.Message().Kafka().AddRouter(msg.AgentServerAllTopic, msg.AgentAllServerId, alls.ResponseAllServer)
+	m.Message().Kafka().AddRouter(msg.AgentServerAllTopic, msg.AgentSendAllClient, is.SendAllClient) // 通知所有客户端消息
 
 	// 注册服务发现回调
 	// 全局服务发现
-	m.Message().Kafka().AddRouter(utils.ServiceDiscoveryListenTopic, utils.ServiceDiscoveryID, CustomHandle.DiscoverHandle)
+	m.Message().Kafka().AddRouter(msg.ServiceDiscoveryListenTopic, msg.ServiceDiscoveryID, CustomHandle.DiscoverHandle)
 	// 首次获取服务发现
-	m.Message().Kafka().AddRouter(m.Server().GetId(), utils.ServiceDiscoveryID, CustomHandle.DiscoverHandle)
+	m.Message().Kafka().AddRouter(m.Server().GetId(), msg.ServiceDiscoveryID, CustomHandle.DiscoverHandle)
 
 	//m.Discover().CallRegisterService()
 	// 开启监听 和返回通道关闭

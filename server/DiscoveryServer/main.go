@@ -5,6 +5,7 @@ import (
 	"KServer/manage/config"
 	"KServer/server/DiscoveryServer/services"
 	"KServer/server/utils"
+	"KServer/server/utils/msg"
 	"fmt"
 )
 
@@ -12,7 +13,7 @@ func main() {
 
 	// 管理器选择开启的服务
 	conf := config.NewManageConfig()
-	conf.Server.Head = utils.ServiceDiscoveryTopic
+	conf.Server.Head = msg.ServiceDiscoveryTopic
 	//conf.DB.Redis =true
 	conf.Message.Kafka = true
 	conf.DB.Mongo = true
@@ -43,9 +44,9 @@ func main() {
 
 	s := services.NewServiceDiscovery(m)
 
-	kafka.AddRouter(utils.ServiceDiscoveryTopic, utils.ServiceDiscoveryID, s.ServiceHandle)
+	kafka.AddRouter(msg.ServiceDiscoveryTopic, msg.ServiceDiscoveryID, s.ServiceHandle)
 
-	kafka.StartListen([]string{kafkaConfig.GetAddr()}, utils.ServiceDiscoveryTopic, utils.NewOffset)
+	kafka.StartListen([]string{kafkaConfig.GetAddr()}, msg.ServiceDiscoveryTopic, utils.NewOffset)
 
 	m.Server().Start()
 

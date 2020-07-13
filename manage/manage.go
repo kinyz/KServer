@@ -25,6 +25,8 @@ type IManage interface {
 	WebSocket() websocket.IWebSocketPack
 	// 服务管理器
 	Discover() discover.IDiscover
+
+	Lock() pack.ILockPack
 }
 type Manage struct {
 	IServer       iserver.IServer
@@ -35,10 +37,11 @@ type Manage struct {
 	SocketPack    socket.ISocketPack
 	WebSocketPack websocket.IWebSocketPack
 	IDiscover     discover.IDiscover
+	LockPack      pack.ILockPack
 }
 
 func NewManage(config *config.ManageConfig) IManage {
-	return &Manage{
+	m := &Manage{
 		IServer:       server.NewIServer(config.Server.Head),
 		IMessage:      pack.NewIMessagePack(config),
 		Db:            pack.NewIDbPack(config),
@@ -47,6 +50,10 @@ func NewManage(config *config.ManageConfig) IManage {
 		IDiscover:     discover.NewDiscover(),
 		WebSocketPack: websocket.NewWebSocketPack(config),
 	}
+	if config.Lock.Open {
+		m.LockPack = pack.NewILockPack(config.Lock.Head, m.DB().Redis(), m.Message().Kafka().Send())
+	}
+	return m
 }
 
 // 服务器管理
@@ -82,4 +89,9 @@ func (m *Manage) WebSocket() websocket.IWebSocketPack {
 // 服务管理器
 func (m *Manage) Discover() discover.IDiscover {
 	return m.IDiscover
+}
+
+// 基于redis和kafka的分布式Lock 需要设置kafka处理死锁的消费主题 及打开kafka的Send
+func (m *Manage) Lock() pack.ILockPack {
+	return m.LockPack
 }

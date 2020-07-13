@@ -29,15 +29,17 @@ func (c *Consumer) NewConsumer(addr []string, offset int64) error {
 	return nil
 }
 func (c *Consumer) NewConsumerGroup(addr []string, group string, offset int64) error {
-	version, err := sarama.ParseKafkaVersion("2.3.0")
-	if err != nil {
-		return err
-	}
+	//version, err := sarama.ParseKafkaVersion("2.3.0")
+	//if err != nil {
+	//	return err
+	//	}
 	config := sarama.NewConfig()
-	config.Version = version
-	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange // 分区分配策略
-	config.Consumer.Offsets.Initial = offset                               // 未找到组消费位移的时候从哪边开始消费
-	config.ChannelBufferSize = 2                                           // channel长度
+	config.Version = sarama.V2_3_0_0
+	//config.Version = version
+	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategySticky // 分区分配策略
+	config.Consumer.Offsets.Initial = offset                                // 未找到组消费位移的时候从哪边开始消费
+	config.ChannelBufferSize = 2                                            // channel长度
+
 	client, err := sarama.NewConsumerGroup(addr, group, config)
 	if err != nil {
 		//log.Fatalf("Error creating consumer group client: %v", err)

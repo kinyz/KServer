@@ -3,7 +3,7 @@ package main
 import (
 	"KServer/library/utils"
 	proto2 "KServer/proto"
-	obj "KServer/server/utils"
+	"KServer/server/utils/msg"
 	pd2 "KServer/server/utils/pd"
 	"fmt"
 
@@ -81,7 +81,7 @@ func timeWriter(conn *websocket.Conn) {
 
 	v := proto.Encode(user)
 
-	data := proto2.NewIMessage(obj.OauthId, obj.OauthAccount, "cab02938-4a6a-4e50-b393-94da981e6660", "", v)
+	data := proto2.NewIMessage(msg.OauthId, msg.OauthAccount, "cab02938-4a6a-4e50-b393-94da981e6660", "", v)
 
 	conn.WriteMessage(websocket.BinaryMessage, data)
 

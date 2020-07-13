@@ -15,7 +15,7 @@ type Router struct {
 	Topic        []string
 	IConsumer    ikafka.IConsumer
 	BaseResponse map[string]ikafka.BaseResponse
-	Ready        chan bool
+	ready        chan bool
 	IByte        iutils.IByte
 	CustomHandle ikafka.BaseResponse
 }
@@ -26,6 +26,7 @@ func NewIRouter() ikafka.IRouter {
 		BaseResponse: make(map[string]ikafka.BaseResponse),
 		IConsumer:    NewIConsumer(),
 		IByte:        utils.NewIByte(),
+		ready:        make(chan bool),
 	}
 }
 func (r *Router) AddCustomHandle(response ikafka.BaseResponse) {
@@ -56,7 +57,9 @@ func (r *Router) AddRouter(topic string, response ikafka.BaseResponse) {
 func (r *Router) Setup(sarama.ConsumerGroupSession) error {
 
 	// Mark the consumer as ready
-	close(r.Ready)
+
+	fmt.Println("111")
+	close(r.ready)
 	return nil
 }
 
@@ -69,7 +72,8 @@ func (r *Router) Cleanup(sarama.ConsumerGroupSession) error {
 // ConsumeClaim must start a consumer loop of ConsumerGroupClaim's Messages().
 func (r *Router) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
-		r.IByte.SetData(msg.Value)
+
+		fmt.Println("我在接收数据", string(msg.Value))
 		//fmt.Println("ConsumeClaim",string(msg.Value))
 		req := &Response{
 			Topic:     msg.Topic,
@@ -82,15 +86,12 @@ func (r *Router) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.
 		}
 		if r.BaseResponse[msg.Topic] != nil {
 			r.BaseResponse[msg.Topic].ResponseHandle(req)
-			return nil
-		}
-		if r.CustomHandle != nil {
+			//break
+		} else if r.CustomHandle != nil {
 			r.CustomHandle.ResponseHandle(req)
 		}
-		//	handle.ResponseHandle(req)
-		//session.MarkMessage(msg, "")
-		//session
-		//session.MemberID()
+		session.MarkMessage(msg, "")
+
 	}
 	return nil
 }
@@ -98,17 +99,19 @@ func (r *Router) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.
 // 注册组监听
 func (r *Router) StartListen(addr []string, group string, offset int64) func() {
 	//r.IConsumer =kafka.NewIConsumer()
-	err := r.IConsumer.NewConsumerGroup(addr, group, offset)
+
+	config := sarama.NewConfig()
+	config.Version = sarama.V2_3_0_0
+	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange // 分区分配策略
+	config.Consumer.Offsets.Initial = offset                               // 未找到组消费位移的时候从哪边开始消费
+	config.ChannelBufferSize = 2                                           // channel长度
+	client, err := sarama.NewConsumerGroup(addr, group, config)
+	//client := r.IConsumer.GetConsumerGroup()
 	if err != nil {
-		fmt.Println("[消息监听组]: ", r.Topic, " 启动失败 ", err)
-		return nil
-	}
-	client := r.IConsumer.GetConsumerGroup()
-	if client == nil {
 		fmt.Println("[消息监听组]: ", r.Topic, " 启动失败")
-		return nil
 	}
-	r.Ready = make(chan bool)
+
+	//r.Ready = make(chan bool)
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -128,10 +131,10 @@ func (r *Router) StartListen(addr []string, group string, offset int64) func() {
 				log.Println(ctx.Err())
 				return
 			}
-			r.Ready = make(chan bool)
+			r.ready = make(chan bool)
 		}
 	}()
-	<-r.Ready
+	<-r.ready
 	fmt.Println("[消息监听组]: ", r.Topic, " 已开启监听")
 	return func() {
 		cancel()
@@ -148,18 +151,17 @@ func (r *Router) StartListen(addr []string, group string, offset int64) func() {
 
 // 注册组监听
 func (r *Router) StartCustomListen(topic []string, addr []string, group string, offset int64) func() {
-	//r.IConsumer =kafka.NewIConsumer()
-	err := r.IConsumer.NewConsumerGroup(addr, group, offset)
+	config := sarama.NewConfig()
+	config.Version = sarama.V2_3_0_0
+	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange // 分区分配策略
+	config.Consumer.Offsets.Initial = offset                               // 未找到组消费位移的时候从哪边开始消费
+	config.ChannelBufferSize = 2                                           // channel长度
+	client, err := sarama.NewConsumerGroup(addr, group, config)
+
 	if err != nil {
-		fmt.Println("[消息监听组]: ", topic, " 启动失败 ", err)
-		return nil
+		fmt.Println("[消息监听组]: ", r.Topic, " 启动失败")
 	}
-	client := r.IConsumer.GetConsumerGroup()
-	if client == nil {
-		fmt.Println("[消息监听组]: ", topic, " 启动失败")
-		return nil
-	}
-	r.Ready = make(chan bool)
+	//r.Ready = make(chan bool)
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -179,10 +181,10 @@ func (r *Router) StartCustomListen(topic []string, addr []string, group string, 
 				log.Println(ctx.Err())
 				return
 			}
-			r.Ready = make(chan bool)
+			//		r.Ready = make(chan bool)
 		}
 	}()
-	<-r.Ready
+	//<-r.Ready
 	fmt.Println("[消息监听组]: ", topic, " 已开启监听")
 	return func() {
 		cancel()

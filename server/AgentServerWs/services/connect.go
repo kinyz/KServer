@@ -9,6 +9,7 @@ import (
 	"KServer/proto"
 	"KServer/server/AgentServerWs/response"
 	"KServer/server/utils"
+	"KServer/server/utils/msg"
 	"KServer/server/utils/pd"
 	"fmt"
 )
@@ -29,7 +30,7 @@ func (c *Connect) PreHandle(request iwebsocket.IRequest) {
 	//fmt.Println(request.GetId())
 
 	switch request.GetMessage().GetMsgId() {
-	case utils.OauthAccount:
+	case msg.OauthAccount:
 		//_ = c.IManage.Message().Kafka().DataPack().UnPack(request.GetMessage().GetData())
 		acc := &pd.Account{}
 		c.IManage.Tool().Protobuf().Decode(request.GetMessage().GetData(), acc)
@@ -56,7 +57,7 @@ func (c *Connect) PreHandle(request iwebsocket.IRequest) {
 			request.GetMessage().GetData())
 
 		//	fmt.Println(string(request.GetMessage().GetData()))
-		c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
+		c.IManage.Message().Kafka().Send().Async(msg.OauthTopic, c.IManage.Server().GetId(), data)
 
 	}
 
@@ -86,10 +87,10 @@ func (c *Connect) DoConnectionLost(conn iwebsocket.IConnection) {
 	//c.IManage.Client().RemoveClient(conn.GetConnID())
 	fmt.Println("[断开连接] IP:", conn.RemoteAddr(), " ConnId:", conn.GetConnID(), " UUID:", c.IManage.WebSocket().Client().GetIdByConnId(conn.GetConnID()))
 
-	c.IManage.Message().Kafka().Send().Sync(utils.OauthTopic, c.IManage.Server().GetId(),
+	c.IManage.Message().Kafka().Send().Sync(msg.OauthTopic, c.IManage.Server().GetId(),
 		c.IManage.Message().DataPack().Pack(
-			utils.OauthId,
-			utils.OauthAccountClose,
+			msg.OauthId,
+			msg.OauthAccountClose,
 			c.IManage.WebSocket().Client().GetIdByConnId(conn.GetConnID()),
 			c.IManage.Server().GetId(),
 			[]byte("close")))
@@ -97,7 +98,7 @@ func (c *Connect) DoConnectionLost(conn iwebsocket.IConnection) {
 	//c.IManage.Message().DataPack()
 	//	c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
 
-	if c.IManage.Message().Kafka().RemoveCustomRouter(utils.ClientTopic + c.IManage.WebSocket().Client().GetIdByConnId(conn.GetConnID())) {
+	if c.IManage.Message().Kafka().RemoveCustomRouter(msg.ClientTopic + c.IManage.WebSocket().Client().GetIdByConnId(conn.GetConnID())) {
 		fmt.Println("移除客户端路由：", c.IManage.WebSocket().Client().GetIdByConnId(conn.GetConnID()))
 	}
 
@@ -116,12 +117,12 @@ func (c *Connect) ResponseOauth(data proto.IDataPack) {
 	switch data.GetMsgId() {
 	// 判断验证服务器是否判断成功 不成功则直接返回客户端
 
-	case utils.OauthAccountSuccess:
+	case msg.OauthAccountSuccess:
 
 		// kafka回调验证成功
 		clientResponse := response.NewClientResponse(c.IManage)
 
-		clientTopic := utils.ClientTopic + data.GetClientId() // 客户端消费头
+		clientTopic := msg.ClientTopic + data.GetClientId() // 客户端消费头
 		clientListenTopic := []string{
 			clientTopic,
 		}

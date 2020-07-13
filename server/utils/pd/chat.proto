@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package pd;
+
+message Chat{
+  uint32 Id = 1; // 消息id
+  uint32 Type = 2; // 消息类别
+  string Title = 3; // 消息标题
+  string Text = 4; // 消息内容
+  string Author = 5; // 作者
+  string Send = 6; // 接收者
+}
