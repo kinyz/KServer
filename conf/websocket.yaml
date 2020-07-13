@@ -1,0 +1,7 @@
+Name: Agent Server
+Host: 0.0.0.0
+TcpPort: 9999
+MaxConn: 3000
+WorkerPoolSize: 10
+LogDir: ./log
+LogFile: server.log

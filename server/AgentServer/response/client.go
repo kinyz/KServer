@@ -14,17 +14,15 @@ func NewClientResponse(m manage.IManage) *ClientResponse {
 	return &ClientResponse{IManage: m}
 }
 
-// 用于接收客户端主题
+// 用于接收客户端的自定义头
 func (c *ClientResponse) ResponseClient(data proto.IDataPack) {
+	fmt.Println("收到来自客户端的回调1", data.GetClientId())
 
-	fmt.Println("收到客户端信息", data.GetClientId())
-	client := c.IManage.Socket().Client().GetClient(data.GetClientId())
-	if client != nil {
-		client.Send(data.GetData().Bytes())
+	if c.IManage.Socket().Client().GetState(data.GetClientId()) {
+		c.IManage.Socket().Client().GetClient(data.GetClientId()).Send(data.GetRawData())
 		return
 	}
-
-	fmt.Println("客户端回调")
+	fmt.Println("收到来自客户端的回调2", data.GetData().String())
 
 }
 

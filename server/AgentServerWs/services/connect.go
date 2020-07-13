@@ -47,36 +47,16 @@ func (c *Connect) PreHandle(request iwebsocket.IRequest) {
 		// 加入客户端管理器
 		c.IManage.WebSocket().Client().AddClient(acc.UUID, acc.Token, request.GetConnection())
 
-		// kafka
-		clientResponse := response.NewClientResponse(c.IManage)
+		// pack一个向验证服务器请求验证的包
+		data := c.IManage.Message().DataPack().Pack(
+			request.GetMessage().GetId(),
+			request.GetMessage().GetMsgId(),
+			acc.UUID,
+			c.IManage.Server().GetId(),
+			request.GetMessage().GetData())
 
-		clientTopic := utils.ClientTopic + acc.UUID // 客户端消费头
-		clientListenTopic := []string{
-			clientTopic,
-		}
-		if !c.IManage.WebSocket().Client().GetState(acc.UUID) {
-			return
-		}
-		// 新增接收客户端的kafka路由
-		c.IManage.Message().Kafka().AddRouter(clientTopic, utils.ClientNotifyId, clientResponse.ResponseClient)
-		c.IManage.Message().Kafka().AddRouter(clientTopic, utils.ClientRemove, clientResponse.ResponseRemoveClient)
-
-		// 启动客户端所需启动的监听
-		go func() {
-			c.IManage.WebSocket().Client().SetClose(acc.UUID, c.IManage.Message().Kafka().StartOtherListen(
-				clientListenTopic,
-				[]string{c.KafkaConfig.GetAddr()},
-				c.IManage.Tool().Encrypt().NewUuid(),
-				-1))
-
-			data := c.IManage.Message().Kafka().DataPack().Pack(request.GetMessage().GetId(),
-				request.GetMessage().GetMsgId(),
-				acc.UUID,
-				c.IManage.Server().GetId(),
-				c.IManage.Message().Kafka().DataPack().GetData().Bytes())
-			//c.IManage.Message().DataPack()
-			c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
-		}()
+		//	fmt.Println(string(request.GetMessage().GetData()))
+		c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
 
 	}
 
@@ -104,10 +84,10 @@ func (c *Connect) DoConnectionBegin(conn iwebsocket.IConnection) {
 func (c *Connect) DoConnectionLost(conn iwebsocket.IConnection) {
 
 	//c.IManage.Client().RemoveClient(conn.GetConnID())
-	fmt.Println("[断开连接] IP:", conn.RemoteAddr(), " ConnId:", conn.GetConnID(), " UUID:", c.IManage.Socket().Client().GetIdByConnId(conn.GetConnID()))
+	fmt.Println("[断开连接] IP:", conn.RemoteAddr(), " ConnId:", conn.GetConnID(), " UUID:", c.IManage.WebSocket().Client().GetIdByConnId(conn.GetConnID()))
 
 	c.IManage.Message().Kafka().Send().Sync(utils.OauthTopic, c.IManage.Server().GetId(),
-		c.IManage.Message().Kafka().DataPack().Pack(
+		c.IManage.Message().DataPack().Pack(
 			utils.OauthId,
 			utils.OauthAccountClose,
 			c.IManage.WebSocket().Client().GetIdByConnId(conn.GetConnID()),
@@ -116,6 +96,10 @@ func (c *Connect) DoConnectionLost(conn iwebsocket.IConnection) {
 
 	//c.IManage.Message().DataPack()
 	//	c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
+
+	if c.IManage.Message().Kafka().RemoveCustomRouter(utils.ClientTopic + c.IManage.WebSocket().Client().GetIdByConnId(conn.GetConnID())) {
+		fmt.Println("移除客户端路由：", c.IManage.WebSocket().Client().GetIdByConnId(conn.GetConnID()))
+	}
 
 	c.IManage.WebSocket().Client().Remove(conn.GetConnID())
 
@@ -134,9 +118,34 @@ func (c *Connect) ResponseOauth(data proto.IDataPack) {
 
 	case utils.OauthAccountSuccess:
 
+		// kafka回调验证成功
+		clientResponse := response.NewClientResponse(c.IManage)
+
+		clientTopic := utils.ClientTopic + data.GetClientId() // 客户端消费头
+		clientListenTopic := []string{
+			clientTopic,
+		}
+		if !c.IManage.WebSocket().Client().GetState(data.GetClientId()) {
+			return
+		}
+
+		// 新增接收客户端的kafka路由
+		c.IManage.Message().Kafka().AddCustomRouter(clientTopic, clientResponse.ResponseClient)
+		//c.IManage.Message().Kafka().AddRouter(clientTopic, utils.ClientNotifyId, clientResponse.ResponseClient)
+		//c.IManage.Message().Kafka().AddCustomRouter(clientTopic, clientResponse.ResponseRemoveClient)
+
+		// 启动客户端所需启动的监听
+
+		c.IManage.WebSocket().Client().SetClose(data.GetClientId(), c.IManage.Message().Kafka().StartCustomListen(
+			clientListenTopic,
+			[]string{c.KafkaConfig.GetAddr()},
+			c.IManage.Tool().Encrypt().NewUuid(),
+			-1))
+
 		err := client.Send(data.GetRawData())
 		if err != nil {
 			fmt.Println("客户端回调消息失败")
+			client.Stop()
 		}
 
 	default:

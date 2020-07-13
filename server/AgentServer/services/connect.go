@@ -49,38 +49,16 @@ func (c *Connect) PreHandle(request isocket.IRequest) {
 		// 加入客户端管理器
 		c.IManage.Socket().Client().AddClient(acc.UUID, acc.Token, request.GetConnection())
 
-		// kafka
-		clientResponse := response.NewClientResponse(c.IManage)
+		// pack一个向验证服务器请求验证的包
+		data := c.IManage.Message().DataPack().Pack(
+			request.GetMessage().GetId(),
+			request.GetMessage().GetMsgId(),
+			acc.UUID,
+			c.IManage.Server().GetId(),
+			request.GetMessage().GetData())
 
-		clientTopic := utils.ClientTopic + acc.UUID // 客户端消费头
-		clientListenTopic := []string{
-			clientTopic,
-		}
-		if !c.IManage.Socket().Client().GetState(acc.UUID) {
-			return
-		}
-		// 新增接收客户端的kafka路由
-		c.IManage.Message().Kafka().AddRouter(clientTopic, utils.ClientNotifyId, clientResponse.ResponseClient)
-		c.IManage.Message().Kafka().AddRouter(clientTopic, utils.ClientRemove, clientResponse.ResponseRemoveClient)
-
-		// 启动客户端所需启动的监听
-		go func() {
-			c.IManage.Socket().Client().SetClose(acc.UUID, c.IManage.Message().Kafka().StartOtherListen(
-				clientListenTopic,
-				[]string{c.KafkaConfig.GetAddr()},
-				c.IManage.Tool().Encrypt().NewUuid(),
-				-1))
-
-			data := c.IManage.Message().Kafka().DataPack().Pack(request.GetMessage().GetId(),
-				request.GetMessage().GetMsgId(),
-				acc.UUID,
-				c.IManage.Server().GetId(),
-				request.GetMessage().GetData())
-			//c.IManage.Message().DataPack()
-			fmt.Println("开始验证账号", data)
-
-			c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
-		}()
+		//fmt.Println(string(request.GetMessage().GetData()))
+		c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
 
 	}
 
@@ -111,15 +89,18 @@ func (c *Connect) DoConnectionLost(conn isocket.IConnection) {
 	fmt.Println("[断开连接] IP:", conn.RemoteAddr(), " ConnId:", conn.GetConnID(), " UUID:", c.IManage.Socket().Client().GetIdByConnId(conn.GetConnID()))
 
 	c.IManage.Message().Kafka().Send().Sync(utils.OauthTopic, c.IManage.Server().GetId(),
-		c.IManage.Message().Kafka().DataPack().Pack(
+		c.IManage.Message().DataPack().Pack(
 			utils.OauthId,
 			utils.OauthAccountClose,
 			c.IManage.Socket().Client().GetIdByConnId(conn.GetConnID()),
 			c.IManage.Server().GetId(),
 			[]byte("close")))
 
-	//c.IManage.Message().DataPack()
-	//	c.IManage.Message().Kafka().Send().Async(utils.OauthTopic, c.IManage.Server().GetId(), data)
+	// 移除kafka路由
+
+	if c.IManage.Message().Kafka().RemoveCustomRouter(utils.ClientTopic + c.IManage.Socket().Client().GetIdByConnId(conn.GetConnID())) {
+		fmt.Println("移除客户端路由：", c.IManage.Socket().Client().GetIdByConnId(conn.GetConnID()))
+	}
 
 	c.IManage.Socket().Client().Remove(conn.GetConnID())
 
@@ -127,6 +108,7 @@ func (c *Connect) DoConnectionLost(conn isocket.IConnection) {
 
 func (c *Connect) ResponseOauth(data proto.IDataPack) {
 
+	fmt.Println("收到验证信息,", data.GetId(), data.GetMsgId())
 	client := c.IManage.Socket().Client().GetClient(data.GetClientId())
 	if client == nil {
 		//fmt.Println("客户端不存在")
@@ -137,10 +119,39 @@ func (c *Connect) ResponseOauth(data proto.IDataPack) {
 	// 判断验证服务器是否判断成功 不成功则直接返回客户端
 
 	case utils.OauthAccountSuccess:
+		// kafka回调验证成功
+		clientResponse := response.NewClientResponse(c.IManage)
+
+		clientTopic := utils.ClientTopic + data.GetClientId() // 客户端消费头
+		clientListenTopic := []string{
+			clientTopic,
+		}
+		if !c.IManage.Socket().Client().GetState(data.GetClientId()) {
+			return
+		}
+
+		// 新增接收客户端的kafka路由
+		if !c.IManage.Message().Kafka().AddCustomRouter(clientTopic, clientResponse.ResponseClient) {
+			fmt.Println("添加客户端路由失败", clientTopic)
+			client.Stop()
+			return
+		}
+
+		//c.IManage.Message().Kafka().AddRouter(clientTopic, utils.ClientNotifyId, clientResponse.ResponseClient)
+		//c.IManage.Message().Kafka().AddCustomRouter(clientTopic, clientResponse.ResponseRemoveClient)
+
+		// 启动客户端所需启动的监听
+
+		c.IManage.Socket().Client().SetClose(data.GetClientId(), c.IManage.Message().Kafka().StartCustomListen(
+			clientListenTopic,
+			[]string{c.KafkaConfig.GetAddr()},
+			c.IManage.Tool().Encrypt().NewUuid(),
+			-1))
 
 		err := client.Send(data.GetRawData())
 		if err != nil {
 			fmt.Println("客户端回调消息失败")
+			client.Stop()
 		}
 
 	default:

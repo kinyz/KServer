@@ -17,6 +17,7 @@ type Router struct {
 	BaseResponse map[string]ikafka.BaseResponse
 	Ready        chan bool
 	IByte        iutils.IByte
+	CustomHandle ikafka.BaseResponse
 }
 
 func NewIRouter() ikafka.IRouter {
@@ -27,7 +28,13 @@ func NewIRouter() ikafka.IRouter {
 		IByte:        utils.NewIByte(),
 	}
 }
+func (r *Router) AddCustomHandle(response ikafka.BaseResponse) {
 
+	if r.CustomHandle != nil {
+		return
+	}
+	r.CustomHandle = response
+}
 func (r *Router) AddRouter(topic string, response ikafka.BaseResponse) {
 	r.BaseResponse[topic] = response
 
@@ -37,7 +44,6 @@ func (r *Router) AddRouter(topic string, response ikafka.BaseResponse) {
 			b = false
 			break
 		}
-
 	}
 	if b {
 		r.Topic = append(r.Topic, topic)
@@ -64,6 +70,7 @@ func (r *Router) Cleanup(sarama.ConsumerGroupSession) error {
 func (r *Router) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
 		r.IByte.SetData(msg.Value)
+		//fmt.Println("ConsumeClaim",string(msg.Value))
 		req := &Response{
 			Topic:     msg.Topic,
 			Key:       string(msg.Key),
@@ -75,8 +82,12 @@ func (r *Router) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.
 		}
 		if r.BaseResponse[msg.Topic] != nil {
 			r.BaseResponse[msg.Topic].ResponseHandle(req)
-
+			return nil
 		}
+		if r.CustomHandle != nil {
+			r.CustomHandle.ResponseHandle(req)
+		}
+		//	handle.ResponseHandle(req)
 		//session.MarkMessage(msg, "")
 		//session
 		//session.MemberID()
@@ -136,7 +147,7 @@ func (r *Router) StartListen(addr []string, group string, offset int64) func() {
 }
 
 // 注册组监听
-func (r *Router) StartOtherListen(topic []string, addr []string, group string, offset int64) func() {
+func (r *Router) StartCustomListen(topic []string, addr []string, group string, offset int64) func() {
 	//r.IConsumer =kafka.NewIConsumer()
 	err := r.IConsumer.NewConsumerGroup(addr, group, offset)
 	if err != nil {

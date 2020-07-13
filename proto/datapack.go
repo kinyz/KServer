@@ -22,6 +22,7 @@ type IDataPack interface {
 	GetData() iutils.IByte
 	// 获取包长度
 
+	// 获取原始数据
 	GetRawData() []byte
 }
 
@@ -48,7 +49,6 @@ func (m *DataPack) Pack(id uint32, msgId uint32, clientId string, serverId strin
 	return m.IProtobuf.Encode(v)
 }
 func (m *DataPack) UnPack(data []byte) error {
-
 	v := &Message{}
 	err := m.IProtobuf.Decode(data, v)
 	if err != nil {
@@ -56,6 +56,7 @@ func (m *DataPack) UnPack(data []byte) error {
 	}
 	m.message = v
 	m.RawData = data
+	m.IByte.SetData(v.Data)
 	//fmt.Println(string(data))
 	return nil
 }
@@ -69,7 +70,7 @@ func (m *DataPack) GetMsgId() uint32 {
 	return m.message.MsgId
 }
 func (m *DataPack) GetData() iutils.IByte {
-	m.IByte.SetData(m.message.Data)
+	//	m.IByte.SetData(m.message.Data)
 	return m.IByte
 }
 func (m *DataPack) GetId() uint32 {

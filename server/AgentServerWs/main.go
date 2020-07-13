@@ -60,7 +60,6 @@ func main() {
 	m.Message().Kafka().AddRouter(m.Server().GetId(), utils.AgentSendAllClient, is.SendAllClient) // 通知所有客户端消息
 
 	// 所有服务器接受消息
-	//m.Message().Kafka().AddRouter(utils.AgentServerAllTopic, utils.AgentConnStop, alls.RemoveClient) // 通知客户端下线
 	m.Message().Kafka().AddRouter(utils.AgentServerAllTopic, utils.AgentAllServerId, alls.ResponseAllServer)
 
 	// 注册服务发现回调

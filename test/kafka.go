@@ -30,9 +30,9 @@ func main() {
 			Port:     m.Server().GetPort(),
 			Type:     "kafka",
 		}
-		b := m.Message().Kafka().DataPack().Pack(utils.ServiceDiscoveryID, utils.ServiceDiscoveryCheckAllService, m.Server().GetId(),
+		b := m.Message().DataPack().Pack(120, utils.ServiceDiscoveryCheckAllService, "cab02938-4a6a-4e50-b393-94da981e6660",
 			m.Server().GetId(), m.Tool().Protobuf().Encode(data))
-		kafka.Send().Sync(utils.ServiceDiscoveryTopic, m.Server().GetId(), b)
+		kafka.Send().Sync("Client_cab02938-4a6a-4e50-b393-94da981e6660", m.Server().GetId(), b)
 		//fmt.Println(err)
 		//time.Sleep(1 * time.Second)
 	}

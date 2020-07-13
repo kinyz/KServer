@@ -24,7 +24,7 @@ func (c *WebSocketDiscovery) PreHandle(request iwebsocket.IRequest) {
 		return
 	}
 
-	data := c.IManage.Message().Kafka().DataPack().Pack(request.GetMessage().GetId(), request.GetMessage().GetMsgId(),
+	data := c.IManage.Message().DataPack().Pack(request.GetMessage().GetId(), request.GetMessage().GetMsgId(),
 		c.IManage.Socket().Client().GetIdByConnId(request.GetConnection().GetConnID()),
 		c.IManage.Server().GetId(), request.GetMessage().GetData())
 

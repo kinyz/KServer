@@ -99,7 +99,7 @@ func init() {
 		Scheme:           "ws",
 		MaxConn:          12000,
 		MaxPacketSize:    4096,
-		ConfFilePath:     "conf/socket.yaml",
+		ConfFilePath:     "conf/websocket.yaml",
 		WorkerPoolSize:   10,
 		MaxWorkerTaskLen: 1024,
 		MaxMsgChanLen:    1024,

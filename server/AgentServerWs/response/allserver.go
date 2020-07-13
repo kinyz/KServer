@@ -17,7 +17,7 @@ func NewAllServerResponse(m manage.IManage) *AllServerResponse {
 func (s *AllServerResponse) ResponseAllServer(data proto.IDataPack) {
 	//s.IManage.Message().DataPack().UnPack(req.GetData().Bytes())
 
-	fmt.Println("服务器全体收到消息", s.IManage.Message().Kafka().DataPack().GetData().String())
+	fmt.Println("服务器全体收到消息", s.IManage.Message().DataPack().GetData().String())
 
 	//switch s.IManage.DataPack().GetMsgId() {
 
@@ -31,7 +31,7 @@ func (s *AllServerResponse) RemoveClient(data proto.IDataPack) {
 		return
 	}
 
-	err := c.Send(data.GetData().Bytes())
+	err := c.Send(data.GetRawData())
 	if err != nil {
 		fmt.Println("客户端回调消息失败")
 	}

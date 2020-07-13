@@ -36,7 +36,7 @@ func ClientTest(i uint32) {
 	user := &pb.Account{
 		UUID:    "cab02938-4a6a-4e50-b393-94da981e6660",
 		Account: "123",
-		Token:   "ea456525075570667b1cccaf99356ad0",
+		Token:   "c84e59cadf42df0361ea28ba45366758",
 		Online:  0,
 		State:   0,
 	}
@@ -46,6 +46,7 @@ func ClientTest(i uint32) {
 	v := pd.Encode(user)
 
 	data := proto2.NewIMessage(utils.OauthId, utils.OauthAccount, "cab02938-4a6a-4e50-b393-94da981e6660", "", v)
+	fmt.Println(string(data))
 	msg, _ := dp.Pack(data)
 	//fmt.Println(string(v))
 	//for i := 0; i < 5; i++ {

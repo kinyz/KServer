@@ -45,9 +45,9 @@ func (d *Discover) GetType(id uint32) string {
 }
 
 func (d *Discover) AddService(id uint32, service *pd.Discovery) {
-	if d.Topic[id] != nil {
-		return
-	}
+	//if d.Topic[id] != nil {
+	//return
+	//}
 	d.Topic[id] = service
 	fmt.Println("添加服务", id, d.Topic[id])
 }

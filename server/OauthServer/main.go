@@ -30,7 +30,7 @@ func main() {
 	m.Message().Kafka().AddRouter(utils.OauthTopic, utils.OauthId, oauth.ResponseOauth)
 	m.Message().Kafka().StartListen([]string{kafkaConf.GetAddr()}, utils.OauthTopic, -1)
 
-	// 服务中心注册服务
+	// 服务中心监听
 	//d:=generalService.NewIDiscovery(m)
 	m.Message().Kafka().CallRegisterService(utils.OauthId, utils.OauthTopic, m.Server().GetId(), m.Server().GetHost(), m.Server().GetPort(), utils.KafkaType)
 

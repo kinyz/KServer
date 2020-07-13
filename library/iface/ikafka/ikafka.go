@@ -25,9 +25,13 @@ type BaseResponse interface {
 
 type IRouter interface {
 	//	AddRouter()
+	// 添加路由
 	AddRouter(topic string, response BaseResponse)
+	// 添加监听
 	StartListen(addr []string, group string, offset int64) func()
-	StartOtherListen(topic []string, addr []string, group string, offset int64) func()
+	// 添加其他监听
+	StartCustomListen(topic []string, addr []string, group string, offset int64) func()
+	AddCustomHandle(response BaseResponse)
 }
 
 type ISend interface {

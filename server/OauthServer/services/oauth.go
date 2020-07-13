@@ -21,82 +21,91 @@ func NewOauth(i manage.IManage) IOauth {
 }
 
 func (o *Oauth) ResponseOauth(data proto.IDataPack) {
-	fmt.Println("收到网关信息", o.IManage.Message().Kafka().DataPack().GetMsgId())
-
+	fmt.Println("收到网关信息", data.GetId())
+	//_ = o.IManage.Message().DataPack().UnPack(data.GetRawData())
+	fmt.Println("收到网关信息", data.GetId(), data.GetClientId(), data.GetServerId())
 	switch data.GetMsgId() {
 	case utils.OauthAccount:
+		//	fmt.Println("步骤1")
 		kafka := o.IManage.Message().Kafka()
 		acc := &pd.Account{}
-		err := kafka.DataPack().GetData().ProtoBuf(acc)
-		if err != nil {
-			fmt.Println("err=", err)
-			return
-		}
+		data.GetData().ProtoBuf(acc)
+
 		//fmt.Println("数据接收", acc.UUID, acc.PassWord, acc.Token)
 
 		dbacc := &pd.Account{}
-		err = o.IManage.DB().Redis().GetSlaveConn().Get(utils.ClientLoginInfoKey + acc.UUID).ProtoBuf(dbacc)
+		err := o.IManage.DB().Redis().GetSlaveConn().Get(utils.ClientLoginInfoKey + data.GetClientId()).ProtoBuf(dbacc)
+		//fmt.Println("步骤2",data.GetData().String())
 
 		if err != nil {
 			kafka.Send().Async(data.GetServerId(), o.IManage.Server().GetId(),
-				kafka.DataPack().Pack(
+				o.IManage.Message().DataPack().Pack(
 					data.GetId(),
 					utils.OauthAccountSystemError,
-					acc.UUID,
-					o.IManage.Message().Kafka().DataPack().GetServerId(),
+					data.GetClientId(),
+					o.IManage.Message().DataPack().GetServerId(),
 					[]byte("系统错误")))
 			return
 		}
+		//	fmt.Println("步骤3",acc.UUID,dbacc.UUID)
+
 		if acc.UUID != dbacc.UUID {
 			kafka.Send().Async(data.GetServerId(), o.IManage.Server().GetId(),
-				kafka.DataPack().Pack(
+				o.IManage.Message().DataPack().Pack(
 					data.GetId(),
 					utils.OauthAccountNotFindError,
-					acc.UUID,
-					o.IManage.Message().Kafka().DataPack().GetServerId(),
+					data.GetClientId(),
+					data.GetServerId(),
 					[]byte("找不到账号")))
 			return
 		}
+		//fmt.Println("步骤4")
+
 		if acc.Token != dbacc.Token {
 			kafka.Send().Async(data.GetServerId(), o.IManage.Server().GetId(),
-				kafka.DataPack().Pack(
+				o.IManage.Message().DataPack().Pack(
 					data.GetId(),
 					utils.OauthAccountTokenError,
-					acc.UUID,
-					o.IManage.Message().Kafka().DataPack().GetServerId(),
+					data.GetClientId(),
+					o.IManage.Server().GetId(),
 					[]byte("Token已失效")))
 			return
 		}
+		fmt.Println("步骤5", dbacc.Online)
+
 		if dbacc.Online == utils.ClientOnline {
 			kafka.Send().Async(data.GetServerId(), o.IManage.Server().GetId(),
-				kafka.DataPack().Pack(
+				o.IManage.Message().DataPack().Pack(
 					data.GetId(),
 					utils.OauthAccountOnlineError,
-					acc.UUID,
-					o.IManage.Message().Kafka().DataPack().GetServerId(),
+					data.GetClientId(),
+					o.IManage.Server().GetId(),
 					[]byte("当前账号已在线")))
 			return
 		}
+		fmt.Println("步骤6")
 
 		if dbacc.State != 0 {
 			kafka.Send().Async(data.GetServerId(), o.IManage.Server().GetId(),
-				kafka.DataPack().Pack(
+				o.IManage.Message().DataPack().Pack(
 					data.GetId(),
 					utils.OauthAccountAccountStateError,
-					acc.UUID,
-					o.IManage.Message().Kafka().DataPack().GetServerId(),
+					data.GetClientId(),
+					o.IManage.Server().GetId(),
 					[]byte("账号已被封停")))
 			return
 		}
 		dbacc.Online = utils.OauthAccountOnline
 		o.IManage.DB().Redis().GetMasterConn().Set(utils.ClientLoginInfoKey + acc.UUID).ProtoBuf(dbacc)
 		kafka.Send().Async(data.GetServerId(), o.IManage.Server().GetId(),
-			kafka.DataPack().Pack(
+			o.IManage.Message().DataPack().Pack(
 				data.GetId(),
 				utils.OauthAccountSuccess,
-				acc.UUID,
-				o.IManage.Message().Kafka().DataPack().GetServerId(),
-				o.IManage.Message().Kafka().DataPack().GetData().Bytes()))
+				data.GetClientId(),
+				data.GetServerId(),
+				[]byte("登陆成功")))
+		fmt.Println("步骤7")
+
 	case utils.OauthAccountClose:
 
 		fmt.Println("收到请求关闭", data.GetClientId())

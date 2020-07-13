@@ -171,7 +171,7 @@ func (c *Connection) Stop() {
 	//如果用户注册了该链接的关闭回调业务，那么在此刻应该显示调用
 	c.TcpServer.CallOnConnStop(c)
 
-	// 关闭socket链接
+	// 关闭websocket链接
 	c.Conn.Close()
 	//关闭Writer
 	c.ExitBuffChan <- true
