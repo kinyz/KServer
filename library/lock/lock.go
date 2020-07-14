@@ -15,27 +15,18 @@ func NewILock(redis iredis.IRedisPool) ilock.ILock {
 }
 
 func (l *Lock) Lock(Key string) bool {
-	fmt.Println("获取锁1")
 
 	v, err := l.IRedis.GetSlaveConn().Get(Key).Value()
-	fmt.Println("获取锁2", v)
 
 	if err != nil || v != nil {
 		return false
 	}
 
-	fmt.Println("获取锁3")
 	_, err = l.IRedis.GetMasterConn().Set(Key).String("true")
 	if err != nil {
-		fmt.Println("获取锁14")
-
 		fmt.Println("Lock ", Key, "Error :", err)
 		return false
 	}
-	fmt.Println("获取锁5")
-
-	fmt.Println("获取锁5")
-
 	return true
 }
 
@@ -47,4 +38,17 @@ func (l *Lock) UnLock(Key string) bool {
 		return false
 	}
 	return true
+}
+
+func (l *Lock) Check(Key string) bool {
+
+	v, err := l.IRedis.GetSlaveConn().Get(Key).Value()
+
+	if err != nil {
+		return false
+	}
+	if v != nil {
+		return true
+	}
+	return false
 }

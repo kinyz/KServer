@@ -110,7 +110,7 @@ func (c *Connect) DoConnectionLost(conn isocket.IConnection) {
 
 func (c *Connect) ResponseOauth(data proto.IDataPack) {
 
-	fmt.Println("收到验证信息,", data.GetId(), data.GetMsgId())
+	fmt.Println("收到验证回调,", data.GetId(), data.GetMsgId(), data.GetClientId())
 	client := c.IManage.Socket().Client().GetClient(data.GetClientId())
 	if client == nil {
 		//fmt.Println("客户端不存在")

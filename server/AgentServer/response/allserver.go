@@ -20,9 +20,9 @@ func (s *AllServerResponse) ResponseAllServer(data proto.IDataPack) {
 	switch data.GetMsgId() {
 	case msg.AgentSendAllClient:
 		s.IManage.Socket().Client().SendAll(data.GetRawData())
+		fmt.Println(data.GetServerId(), " 发送全体消息", data.GetData().String())
 
 	}
-	fmt.Println("服务器全体收到消息", s.IManage.Message().DataPack().GetData().String())
 
 	//switch s.IManage.DataPack().GetMsgId() {
 

@@ -71,7 +71,7 @@ func (o *Oauth) ResponseOauth(data proto.IDataPack) {
 					[]byte("Token已失效")))
 			return
 		}
-		fmt.Println("步骤5", dbacc.Online)
+		//	fmt.Println("步骤5", dbacc.Online)
 
 		if dbacc.Online == msg.ClientOnline {
 			kafka.Send().Async(data.GetServerId(), o.IManage.Server().GetId(),
@@ -83,7 +83,7 @@ func (o *Oauth) ResponseOauth(data proto.IDataPack) {
 					[]byte("当前账号已在线")))
 			return
 		}
-		fmt.Println("步骤6")
+		//fmt.Println("步骤6")
 
 		if dbacc.State != 0 {
 			kafka.Send().Async(data.GetServerId(), o.IManage.Server().GetId(),
@@ -104,11 +104,11 @@ func (o *Oauth) ResponseOauth(data proto.IDataPack) {
 				data.GetClientId(),
 				data.GetServerId(),
 				[]byte("登陆成功")))
-		fmt.Println("步骤7")
+		//fmt.Println("步骤7")
 
 	case msg.OauthAccountClose:
 
-		fmt.Println("收到请求关闭", data.GetClientId())
+		//fmt.Println("收到请求关闭", data.GetClientId())
 		dbuser := &pd.Account{}
 
 		err := o.IManage.DB().Redis().GetSlaveConn().Get(msg.ClientLoginInfoKey + data.GetClientId()).ProtoBuf(dbuser)

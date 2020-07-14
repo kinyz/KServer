@@ -60,10 +60,14 @@ func (u *User) AccountLogin(ctx iris.Context) {
 		return
 	}
 
-	if !u.Manage.Lock().Lock(msg.LockAccount + u.Account.Account) {
-		fmt.Println("加锁失败")
+	if !u.Manage.Lock().AutoLock(msg.LockAccount+u.Account.Account, 10) {
+		//fmt.Println("加锁失败")
+		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": "登陆失败,请10秒后重试"})
 		return
 	}
+
+	defer u.Manage.Lock().SendKafka(msg.LockAccount+u.Account.Account, msg.LockTypeAutoUnLock)
+
 	if len(u.Account.Account) < 1 || len(u.Account.Account) < 1 {
 		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": "账号或密码不能为空"})
 		return
@@ -121,12 +125,6 @@ func (u *User) AccountLogin(ctx iris.Context) {
 	//_, _ = u.Redis.SetValueByProto(key, &u.Account)
 	u.Account.PassWord = "******" //  返回隐藏密码
 	fmt.Println(u.Account.UUID)
-
-	if !u.Manage.Lock().UnLock(msg.LockAccount + u.Account.Account) {
-		fmt.Println("解锁失败")
-		_, _ = ctx.JSON(iris.Map{"state": "fail", "msg": "系统错误"})
-		return
-	}
 
 	_, _ = ctx.JSON(iris.Map{"state": "success", "msg": "登陆成功", "result": u.Account})
 

@@ -23,9 +23,9 @@ type IManage interface {
 	Socket() socket.ISocketPack
 	// WebSocket
 	WebSocket() websocket.IWebSocketPack
-	// 服务管理器
+	// 服务发现
 	Discover() discover.IDiscover
-
+	// 分布式锁
 	Lock() pack.ILockPack
 }
 type Manage struct {
@@ -51,7 +51,7 @@ func NewManage(config *config.ManageConfig) IManage {
 		WebSocketPack: websocket.NewWebSocketPack(config),
 	}
 	if config.Lock.Open {
-		m.LockPack = pack.NewILockPack(config.Lock.Head, m.DB().Redis(), m.Message().Kafka().Send())
+		m.LockPack = pack.NewILockPack(m.Server().GetId(), config.Lock.Head, m.IMessage.DataPack(), m.IToolPack.Protobuf(), m.DB().Redis(), m.Message().Kafka().Send())
 	}
 	return m
 }

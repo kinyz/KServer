@@ -6,11 +6,36 @@ import (
 )
 
 type IClient interface {
+	/*
+		发送消息
+		data []byte
+		返回值 error
+	*/
 	Send(data []byte) error
+	/*
+		发送buff消息
+		data []byte
+		返回值 error
+	*/
 	SendBuff(data []byte) error
+	/*
+		获取Client ConnId
+		返回值 uint32
+	*/
 	GetConnId() uint32
+	/*
+		停止Client 并执行关闭回调
+	*/
 	Stop()
+	/*
+		获取ClientToken
+		返回值string
+	*/
 	GetToken() string
+	/*
+		获取Client原始Connection
+		返回值IConnection
+	*/
 	GetRawConn() isocket.IConnection
 }
 type Client struct {

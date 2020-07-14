@@ -10,13 +10,51 @@ import (
 )
 
 type IClientPack interface {
+	/*
+		添加Client
+		uuid string 所需要加锁的Key
+		token string 应用于已开启kafka处理
+		conn isocket.IConnection
+	*/
 	AddClient(uuid string, token string, conn isocket.IConnection)
+	/*
+		移除Client
+		id uint32 一般用connId
+	*/
 	Remove(id uint32)
+	/*
+		获取Client
+		uuid string
+		返回IClient对象
+	*/
 	GetClient(uuid string) socket2.IClient
+	/*
+		获取Client状态
+		uuid string
+		返回值 bool
+	*/
 	GetState(uuid string) bool
+	/*
+		获取当前Client数量
+		返回值 int
+	*/
 	GetOnlineNum() int
+	/*
+		通过clientId 查询UUID
+		id uint32
+		返回值 string
+	*/
 	GetIdByConnId(id uint32) string
+	/*
+		通知所有Client
+		data []byte
+	*/
 	SendAll(data []byte)
+	/*
+		设置Client关闭回调
+		uuid string
+		fun func()
+	*/
 	SetClose(uuid string, fun func())
 }
 

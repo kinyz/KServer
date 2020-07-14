@@ -5,7 +5,6 @@ import (
 	"KServer/library/iface/iutils"
 	"KServer/library/kafka"
 	utils2 "KServer/library/utils"
-	"KServer/manage/discover/pd"
 	"KServer/proto"
 	"KServer/server/utils/msg"
 	"fmt"
@@ -91,25 +90,22 @@ func (m *KafkaPack) Send() ikafka.ISend {
 	return m.IKafka.Send()
 }
 func (m *KafkaPack) ResponseHandle(req ikafka.IResponse) {
+
 	err := m.IDataPack.UnPack(req.GetData().Bytes())
+
 	if err != nil {
 		fmt.Println("IDataPack err", err)
 	}
 
-	//fmt.Println("response err", req.GetTopic(),m.IDataPack.GetMsgId(),m.IDataPack.GetId())
-	//fmt.Println("自定义头",req.GetTopic())
 	if m.topic[req.GetTopic()][m.IDataPack.GetId()] != nil {
-		//	fmt.Println("自定义头1",req.GetTopic())
-
 		m.topic[req.GetTopic()][m.IDataPack.GetId()](m.IDataPack)
 		return
 	}
 	if m.CustomHandle[req.GetTopic()] != nil {
-		//	fmt.Println("自定义头2",req.GetTopic())
 
 		m.CustomHandle[req.GetTopic()](m.IDataPack)
 	}
-	//fmt.Println("自定义头结束",req.GetTopic())
+
 }
 
 func (m *KafkaPack) StartListen(addr []string, group string, offset int64) func() {
@@ -121,7 +117,7 @@ func (m *KafkaPack) StartCustomListen(topic []string, addr []string, group strin
 
 // 向服务中心注册一个服务
 func (m *KafkaPack) CallRegisterService(id uint32, topic string, serverId string, host string, port string, Type string) {
-	data := &pd.Discovery{
+	data := &proto.Discovery{
 		Id:       id,
 		Topic:    topic,
 		ServerId: serverId,
@@ -136,7 +132,7 @@ func (m *KafkaPack) CallRegisterService(id uint32, topic string, serverId string
 
 // 向服务中心注销一个服务
 func (m *KafkaPack) CallLogoutService(id uint32, Topic string, serverId string) {
-	data := &pd.Discovery{
+	data := &proto.Discovery{
 		Id:       id,
 		Topic:    Topic,
 		ServerId: serverId,
@@ -151,7 +147,7 @@ func (m *KafkaPack) CallLogoutService(id uint32, Topic string, serverId string) 
 
 // 向服务中心关闭一个主线程服务
 func (m *KafkaPack) CallCloseServiceState(id uint32) {
-	data := &pd.Discovery{
+	data := &proto.Discovery{
 		Id:       id,
 		Topic:    msg.ServiceDiscoveryTopic,
 		ServerId: "",
@@ -166,7 +162,7 @@ func (m *KafkaPack) CallCloseServiceState(id uint32) {
 
 // 向服务中心打开一个主线程服务
 func (m *KafkaPack) CallOpenServiceState(id uint32) {
-	data := &pd.Discovery{
+	data := &proto.Discovery{
 		Id:       id,
 		Topic:    msg.ServiceDiscoveryTopic,
 		ServerId: "",

@@ -54,6 +54,7 @@ func (m *DataPack) UnPack(data []byte) error {
 	if err != nil {
 		return err
 	}
+
 	m.message = v
 	m.RawData = data
 	m.IByte.SetData(v.Data)

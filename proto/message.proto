@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package pd;
+package proto;
 
 // 通信包
 message Message{

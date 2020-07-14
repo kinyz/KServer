@@ -58,7 +58,8 @@ func (r *Router) Setup(sarama.ConsumerGroupSession) error {
 
 	// Mark the consumer as ready
 
-	fmt.Println("111")
+	//	fmt.Println("111")
+
 	close(r.ready)
 	return nil
 }
@@ -73,8 +74,8 @@ func (r *Router) Cleanup(sarama.ConsumerGroupSession) error {
 func (r *Router) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
 
-		fmt.Println("我在接收数据", string(msg.Value))
 		//fmt.Println("ConsumeClaim",string(msg.Value))
+		r.IByte.SetData(msg.Value)
 		req := &Response{
 			Topic:     msg.Topic,
 			Key:       string(msg.Key),
@@ -85,10 +86,14 @@ func (r *Router) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.
 			IByte:     r.IByte,
 		}
 		if r.BaseResponse[msg.Topic] != nil {
+			//print("执行1")
 			r.BaseResponse[msg.Topic].ResponseHandle(req)
 			//break
-		} else if r.CustomHandle != nil {
-			r.CustomHandle.ResponseHandle(req)
+		} else {
+			if r.CustomHandle != nil {
+				//	print("执行2")
+				r.CustomHandle.ResponseHandle(req)
+			}
 		}
 		session.MarkMessage(msg, "")
 

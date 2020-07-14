@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package proto;
+
+// 服务发现通信包
+message LockMessage{
+  string  Key = 1; // 锁Key
+  uint32  Type = 2; // 请求类别
+
+
+}

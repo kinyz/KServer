@@ -21,7 +21,7 @@ func main() {
 	kafka.Send().Open([]string{kafkaConf.GetAddr()})
 
 	for i := 0; i < 5; i++ {
-		fmt.Println("开始发送第", i)
+		//fmt.Println("开始发送第", i)
 		//data := kafka.DataPack().Pack(utils.AgentSendAllClient, 201, "27c340b1-6d1b-4893-a14c-abb1f81829c4", m.Server().GetId(), []byte("全部消息"+strconv.Itoa(i)))
 		data := &pd3.Chat{
 			Id:     uint32(i),

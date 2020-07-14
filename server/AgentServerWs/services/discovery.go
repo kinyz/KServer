@@ -3,7 +3,6 @@ package services
 import (
 	"KServer/library/iface/iwebsocket"
 	"KServer/manage"
-	"KServer/manage/discover/pd"
 	"KServer/proto"
 	"KServer/server/utils/msg"
 	"fmt"
@@ -34,7 +33,7 @@ func (c *WebSocketDiscovery) PreHandle(request iwebsocket.IRequest) {
 	if err != nil {
 		fmt.Println(request.GetMessage().GetId(), request.GetMessage().GetMsgId(), "转发失败")
 	}
-	fmt.Println("CustomHandle")
+	//fmt.Println("CustomHandle")
 }
 
 func (c *WebSocketDiscovery) PostHandle(request iwebsocket.IRequest) {
@@ -58,7 +57,7 @@ func (c *WebSocketDiscovery) DiscoverHandle(data proto.IDataPack) {
 func (c *WebSocketDiscovery) ResponseAddService(data proto.IDataPack) {
 
 	//fmt.Println("服务发现添加服务")
-	d := &pd.Discovery{}
+	d := &proto.Discovery{}
 	err := data.GetData().ProtoBuf(d)
 	if err != nil {
 		fmt.Println("服务发现解析失败")
@@ -72,7 +71,7 @@ func (c *WebSocketDiscovery) ResponseAddService(data proto.IDataPack) {
 
 // 用于服务中心删除服务
 func (c *WebSocketDiscovery) ResponseDelService(data proto.IDataPack) {
-	d := &pd.Discovery{}
+	d := &proto.Discovery{}
 	err := data.GetData().ProtoBuf(d)
 	fmt.Println("服务发现删除服务")
 	if err != nil {

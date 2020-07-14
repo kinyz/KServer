@@ -14,21 +14,19 @@ func main() {
 	// 管理器选择开启的服务
 	conf := config.NewManageConfig()
 	conf.Server.Head = msg.ServiceDiscoveryTopic
-	//conf.DB.Redis =true
+	conf.DB.Redis = true
 	conf.Message.Kafka = true
 	conf.DB.Mongo = true
 	m := manage.NewManage(conf)
 
-	/*
-		// 初始化redisPool
-		redisConfig:=config.NewRedisConfig(utils.RedisConFile)
-		redis:=m.DB().Redis()
-		if !redis.StartMasterPool(redisConfig.GetMasterAddr(),redisConfig.Master.PassWord,redisConfig.Master.MaxIdle,redisConfig.Master.MaxActive)||
-		 !redis.StartSlavePool(redisConfig.GetSlaveAddr(),redisConfig.Slave.PassWord,redisConfig.Slave.MaxIdle,redisConfig.Slave.MaxActive){
-			fmt.Println("Redis 开启失败")
-			return}
-
-	*/
+	// 初始化redisPool
+	redisConfig := config.NewRedisConfig(utils.RedisConFile)
+	redis := m.DB().Redis()
+	if !redis.StartMasterPool(redisConfig.GetMasterAddr(), redisConfig.Master.PassWord, redisConfig.Master.MaxIdle, redisConfig.Master.MaxActive) ||
+		!redis.StartSlavePool(redisConfig.GetSlaveAddr(), redisConfig.Slave.PassWord, redisConfig.Slave.MaxIdle, redisConfig.Slave.MaxActive) {
+		fmt.Println("Redis 开启失败")
+		return
+	}
 
 	// 初始化kafka
 	kafkaConfig := config.NewKafkaConfig(utils.KafkaConFile)
