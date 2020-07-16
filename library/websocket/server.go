@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"KServer/library/iface/iwebsocket"
+	"KServer/library/kiface/iwebsocket"
 	"KServer/library/websocket/utils"
 	"fmt"
 	"github.com/gorilla/websocket"
@@ -94,6 +94,9 @@ var cid uint32
 
 //开启网络服务
 func (s *Server) Start() {
+	fmt.Printf("Socket Info MaxConn: %d, MaxPacketSize: %d\n",
+		utils.GlobalObject.MaxConn,
+		utils.GlobalObject.MaxPacketSize)
 	fmt.Printf("[START] Server name: %s,listenner at IP: %s, Port %d is starting\n", s.Name, s.IP, s.Port)
 
 	//开启一个go去做服务端Linster业务
@@ -182,7 +185,4 @@ func init() {
 	//fmt.Println(fmt.Sprintf("%s [tutorial] https://www.jianshu.com/p/23d07c0a28e5 %s", borderLine, borderLine))
 	//fmt.Println(bottomLine)
 
-	fmt.Printf("Socket Info MaxConn: %d, MaxPacketSize: %d\n",
-		utils.GlobalObject.MaxConn,
-		utils.GlobalObject.MaxPacketSize)
 }

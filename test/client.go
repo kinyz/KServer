@@ -27,7 +27,7 @@ func ClientTest(i uint32) {
 	//3秒之后发起测试请求，给服务端开启服务的机会
 	//time.Sleep(3 * time.Second)
 
-	conn, err := net.Dial("tcp", "127.0.0.1:8889")
+	conn, err := net.Dial("tcp", "140.143.247.121:32106")
 	if err != nil {
 		fmt.Println("client start err, exit!")
 		return
@@ -36,7 +36,7 @@ func ClientTest(i uint32) {
 	user := &pb.Account{
 		UUID:    "27c340b1-6d1b-4893-a14c-abb1f81829c4",
 		Account: "116175894",
-		Token:   "5d7df55292b89a8fcb42bcbdff64d0bd",
+		Token:   "371e8b8f86c88fce4717f034bf9692a8",
 		Online:  0,
 		State:   0,
 	}
@@ -45,7 +45,7 @@ func ClientTest(i uint32) {
 
 	v := pd.Encode(user)
 
-	data := proto2.NewIMessage(msg2.OauthId, msg2.OauthAccount, "cab02938-4a6a-4e50-b393-94da981e6660", "", v)
+	data := proto2.NewIMessage(msg2.OauthId, msg2.OauthAccount, "b3307e8015acec7d5994ab8564b0a000", "", v)
 	fmt.Println(string(data))
 	msg, _ := dp.Pack(data)
 	//fmt.Println(string(v))
@@ -68,6 +68,7 @@ func ClientTest(i uint32) {
 			fmt.Println("read msg head error ", err)
 			break
 		}
+		fmt.Println("head= ", headData)
 		msg, err := dp.Unpack(headData)
 		if err != nil {
 			fmt.Println("unpack error ", err)

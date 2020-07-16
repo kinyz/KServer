@@ -1,7 +1,7 @@
 package redis
 
 import (
-	iface "KServer/library/iface/iredis"
+	iface "KServer/library/kiface/iredis"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
 )
@@ -97,4 +97,19 @@ func (p *Pool) CloseMaster() error {
 func (p *Pool) CloseSlave() error {
 	//p.GetMasterPool().Close()
 	return p.GetSlavePool().Close()
+}
+
+// 获取redis Master conn
+func (p *Pool) GetRawMasterConn() redis.Conn {
+	return p.GetMasterPool().Get()
+}
+
+// 获取redis Slave conn
+func (p *Pool) GetRawSlaveConn() redis.Conn {
+	if !p.SlaveEnable {
+		//	fmt.Println("我是master")
+		return p.GetMasterPool().Get()
+	}
+	//fmt.Println("我是slave")
+	return p.GetSlavePool().Get()
 }

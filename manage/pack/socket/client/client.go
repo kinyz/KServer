@@ -1,7 +1,7 @@
 package client
 
 import (
-	"KServer/library/iface/isocket"
+	"KServer/library/kiface/isocket"
 	socket2 "KServer/manage/socket"
 
 	"KServer/manage/config"

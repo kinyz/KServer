@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"KServer/library/iface/isocket"
+	"KServer/library/kiface/isocket"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"

@@ -1,8 +1,8 @@
 package kafka
 
 import (
-	"KServer/library/iface/ikafka"
-	"KServer/library/iface/iutils"
+	"KServer/library/kiface/ikafka"
+	"KServer/library/kiface/iutils"
 	"time"
 )
 

@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"KServer/library/iface/iutils"
+	"KServer/library/kiface/iutils"
 	"encoding/json"
 	"github.com/golang/protobuf/proto"
 )

@@ -1,9 +1,9 @@
 package kafkaPack
 
 import (
-	"KServer/library/iface/ikafka"
-	"KServer/library/iface/iutils"
 	"KServer/library/kafka"
+	"KServer/library/kiface/ikafka"
+	"KServer/library/kiface/iutils"
 	utils2 "KServer/library/utils"
 	"KServer/proto"
 	"KServer/server/utils/msg"

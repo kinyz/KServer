@@ -1,8 +1,8 @@
 package kafka
 
 import (
-	"KServer/library/iface/ikafka"
-	"KServer/library/iface/iutils"
+	"KServer/library/kiface/ikafka"
+	"KServer/library/kiface/iutils"
 	"KServer/library/utils"
 	"context"
 	"fmt"
@@ -166,7 +166,7 @@ func (r *Router) StartCustomListen(topic []string, addr []string, group string, 
 	if err != nil {
 		fmt.Println("[消息监听组]: ", r.Topic, " 启动失败")
 	}
-	//r.Ready = make(chan bool)
+	r.ready = make(chan bool)
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -189,7 +189,7 @@ func (r *Router) StartCustomListen(topic []string, addr []string, group string, 
 			//		r.Ready = make(chan bool)
 		}
 	}()
-	//<-r.Ready
+	<-r.ready
 	fmt.Println("[消息监听组]: ", topic, " 已开启监听")
 	return func() {
 		cancel()

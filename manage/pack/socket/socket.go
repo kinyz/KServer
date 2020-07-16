@@ -1,10 +1,11 @@
 package socket
 
 import (
-	"KServer/library/iface/isocket"
+	"KServer/library/kiface/isocket"
 	"KServer/library/socket"
 	"KServer/manage/config"
 	"KServer/manage/pack/socket/client"
+	"fmt"
 )
 
 type ISocketPack interface {
@@ -20,8 +21,9 @@ type SocketPack struct {
 func NewSocketPack(conf *config.ManageConfig) ISocketPack {
 	s := &SocketPack{}
 
-	//fmt.Println(conf.Socket.Server)
 	if conf.Socket.Server {
+		fmt.Println(conf.Socket.Server)
+
 		s.ServerPack = socket.NewSocket()
 	}
 	if conf.Socket.Client {

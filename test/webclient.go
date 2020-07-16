@@ -4,7 +4,7 @@ import (
 	"KServer/library/utils"
 	proto2 "KServer/proto"
 	"KServer/server/utils/msg"
-	pd2 "KServer/server/utils/pd"
+	pd3 "KServer/server/utils/pd"
 	"fmt"
 
 	"log"
@@ -71,7 +71,7 @@ func timeWriter(conn *websocket.Conn) {
 	// log.Println("WriteMessage start timeWriter i = ", i)
 
 	//imsg := utils.NewIDataPack()
-	user := &pd2.Account{
+	user := &pd3.Account{
 		UUID:    "cab02938-4a6a-4e50-b393-94da981e6660",
 		Account: "123",
 		Token:   "c84e59cadf42df0361ea28ba45366758",

@@ -1,7 +1,7 @@
 package client
 
 import (
-	"KServer/library/iface/iwebsocket"
+	"KServer/library/kiface/iwebsocket"
 
 	"KServer/manage/config"
 	"KServer/manage/webscoket"

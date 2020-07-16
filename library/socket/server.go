@@ -1,7 +1,7 @@
 package socket
 
 import (
-	"KServer/library/iface/isocket"
+	"KServer/library/kiface/isocket"
 	"KServer/library/socket/utils"
 	"fmt"
 	"net"
@@ -47,6 +47,9 @@ func NewSocket() isocket.IServer {
 
 //开启网络服务
 func (s *Server) Start() {
+	fmt.Printf("Socket Info MaxConn: %d, MaxPacketSize: %d\n",
+		utils.GlobalObject.MaxConn,
+		utils.GlobalObject.MaxPacketSize)
 	fmt.Printf("[START] Server name: %s,listenner at IP: %s, Port %d is starting\n", s.Name, s.IP, s.Port)
 
 	//开启一个go去做服务端Linster业务
@@ -159,17 +162,11 @@ func (s *Server) CallOnConnStop(conn isocket.IConnection) {
 	}
 }
 
-/*
 func init() {
 	//fmt.Println(zinxLogo)
 	//fmt.Println(topLine)
 	//fmt.Println(fmt.Sprintf("%s [Github] https://github.com/aceld                 %s", borderLine, borderLine))
 	//fmt.Println(fmt.Sprintf("%s [tutorial] https://www.jianshu.com/p/23d07c0a28e5 %s", borderLine, borderLine))
 	//fmt.Println(bottomLine)
-	fmt.Printf("Socket Info MaxConn: %d, MaxPacketSize: %d\n",
-		utils.GlobalObject.MaxConn,
-		utils.GlobalObject.MaxPacketSize)
+
 }
-
-
-*/

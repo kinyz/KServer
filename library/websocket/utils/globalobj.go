@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"KServer/library/iface/iwebsocket"
+	"KServer/library/kiface/iwebsocket"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"

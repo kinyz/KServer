@@ -1,7 +1,7 @@
 package socket
 
 import (
-	"KServer/library/iface/isocket"
+	"KServer/library/kiface/isocket"
 	"errors"
 	"fmt"
 	"sync"

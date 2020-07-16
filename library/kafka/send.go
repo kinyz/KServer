@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"KServer/library/iface/ikafka"
+	"KServer/library/kiface/ikafka"
 )
 
 type Send struct {

@@ -1,8 +1,8 @@
 package pack
 
 import (
-	"KServer/library/iface/imongo"
-	"KServer/library/iface/iredis"
+	"KServer/library/kiface/imongo"
+	"KServer/library/kiface/iredis"
 	"KServer/library/mongo"
 	"KServer/library/redis"
 	"KServer/manage/config"

@@ -1,6 +1,6 @@
 package kafka
 
-import "KServer/library/iface/ikafka"
+import "KServer/library/kiface/ikafka"
 
 type Kafka struct {
 	ISend   ikafka.ISend

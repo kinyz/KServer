@@ -1,7 +1,7 @@
 package config
 
 import (
-	"KServer/library/iface/ikafka"
+	"KServer/library/kiface/ikafka"
 	"KServer/server/utils"
 )
 

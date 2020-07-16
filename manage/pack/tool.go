@@ -1,7 +1,7 @@
 package pack
 
 import (
-	"KServer/library/iface/iutils"
+	"KServer/library/kiface/iutils"
 	"KServer/library/utils"
 )
 

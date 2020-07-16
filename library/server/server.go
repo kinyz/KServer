@@ -1,7 +1,7 @@
 package server
 
 import (
-	"KServer/library/iface/iserver"
+	"KServer/library/kiface/iserver"
 	"fmt"
 	"github.com/satori/go.uuid"
 	"os"

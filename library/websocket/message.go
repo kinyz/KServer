@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"KServer/library/iface/iwebsocket"
+	"KServer/library/kiface/iwebsocket"
 	proto2 "KServer/proto"
 )
 

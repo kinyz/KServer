@@ -2,10 +2,17 @@ syntax = "proto3";
 
 package proto;
 
-// 服务发现通信包
+// 锁通信包
 message LockMessage{
   string  Key = 1; // 锁Key
   uint32  Type = 2; // 请求类别
 
 
+}
+
+// 锁队列通信包
+message LockQueueMessage{
+  int64  Id = 1; // 队列id
+  string Text = 2; // 队列内容
+  int64  TimeOut = 3; // 获取锁时间
 }

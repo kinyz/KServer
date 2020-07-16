@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"KServer/library/iface/iutils"
+	"KServer/library/kiface/iutils"
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/satori/go.uuid"

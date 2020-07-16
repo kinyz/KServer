@@ -1,7 +1,7 @@
 package webscoket
 
 import (
-	"KServer/library/iface/iwebsocket"
+	"KServer/library/kiface/iwebsocket"
 )
 
 type IClient interface {

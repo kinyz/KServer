@@ -1,7 +1,7 @@
 package manage
 
 import (
-	"KServer/library/iface/iserver"
+	"KServer/library/kiface/iserver"
 	"KServer/library/server"
 	"KServer/manage/config"
 	"KServer/manage/discover"

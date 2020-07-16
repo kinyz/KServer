@@ -1,8 +1,8 @@
 package socket
 
 import (
-	"KServer/library/iface/isocket"
-	"KServer/library/iface/iutils"
+	"KServer/library/kiface/isocket"
+	"KServer/library/kiface/iutils"
 	"KServer/library/socket/utils"
 	utils2 "KServer/library/utils"
 	"KServer/proto"

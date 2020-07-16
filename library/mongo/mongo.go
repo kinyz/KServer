@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	"KServer/library/iface/imongo"
+	"KServer/library/kiface/imongo"
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/yaml.v3"

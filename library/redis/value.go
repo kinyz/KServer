@@ -1,7 +1,7 @@
 package redis
 
 import (
-	iface "KServer/library/iface/iredis"
+	iface "KServer/library/kiface/iredis"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -15,9 +15,9 @@ func (v *Value) Get(key string) iface.IGetValue {
 func (v *Value) Set(key string) iface.ISetValue {
 	return &SetValue{Conn: v.Conn, Key: key}
 }
-func (v *Value) Do(key string, value ...interface{}) (reply interface{}, err error) {
+func (v *Value) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
 	defer v.Conn.Close()
-	return v.Conn.Do("SET", key, value)
+	return v.Conn.Do(commandName, args)
 }
 func (v *Value) Check(key string) bool {
 

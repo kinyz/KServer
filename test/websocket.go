@@ -1,7 +1,7 @@
 package main
 
 import (
-	"KServer/library/iface/iwebsocket"
+	"KServer/library/kiface/iwebsocket"
 	"KServer/library/websocket"
 	"fmt"
 )
